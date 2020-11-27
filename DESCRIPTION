@@ -1,0 +1,17 @@
+Package: descstat
+Version: 0.1-0
+Date: 2020-11-23
+Title: Tools for descriptive statistics
+Author: Yves Croissant <yves.croissant@univ-reunion.fr>
+Maintainer: Yves Croissant <yves.croissant@univ-reunion.fr>
+Depends: R (>= 3.5.0), dplyr, tidyr
+Imports: Rdpack, rlang, purrr
+Suggests: ggplot2
+Description: This package provide functions to compute descriptive statistics. More specifically numerical series availble only as classes are supported
+Encoding: UTF-8
+License: GPL (>=2)
+URL: http://www.r-project.org
+RoxygenNote: 7.1.1
+Roxygen: list(markdown = TRUE)
+RdMacros: Rdpack
+LazyData: true

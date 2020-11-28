@@ -52,8 +52,7 @@ Functions and methods to compute the median, the mean, the mode,
 the medial and quantiles for hist_table objects
 }
 \examples{
-
-z <- Salaires \%>\% hist_table(salaire)
+z <- wages \%>\% hist_table(wage)
 z \%>\% median
 z \%>\% medial
 z \%>\% modval

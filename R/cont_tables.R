@@ -45,14 +45,14 @@
 #' @author Yves Croissant
 #' @examples
 #'
-#' cont_table(Emploi, diplome, sexe)
-#' cont_table(Emploi, diplome, sexe, pond = ponderations)
-#' cont_table(Emploi, diplome, sexe) %>% conditional(sexe)
-#' cont_table(Salaires, salaire, taille)
-#' cont_table(Salaires, salaire, taille) %>% joint
-#' cont_table(Salaires, salaire, taille) %>% joint %>% mean
-#' cont_table(Salaires, salaire, taille) %>% marginal(taille)
-#' cont_table(Salaires, salaire, taille) %>% conditional(taille) %>% mean
+#' cont_table(employment, education, sex)
+#' cont_table(employment, education, sex, pond = weights)
+#' cont_table(employment, education, sex) %>% conditional(sex)
+#' cont_table(wages, wage, size)
+#' cont_table(wages, wage, size) %>% joint
+#' cont_table(wages, wage, size) %>% joint %>% mean
+#' cont_table(wages, wage, size) %>% marginal(size)
+#' cont_table(wages, wage, size) %>% conditional(size) %>% mean
 #' 
 cont_table <- function(data, y1, y2, pond = NULL,
                        total = TRUE,

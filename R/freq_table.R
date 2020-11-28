@@ -36,11 +36,11 @@
 #' @author Yves Croissant
 #' @examples
 #'
-#' freq_table(Emploi, activite, "n")
-#' freq_table(Emploi, activite, "nN")
-#' freq_table(Emploi, activite, "fF", weights = ponderations)
-#' freq_table(RGP77, enfants, "npNP")
-#' freq_table(RGP77, enfants, "npNP", max = 5)
+#' freq_table(employment, activity, "n")
+#' freq_table(employment, activity, "nN")
+#' freq_table(employment, activity, "fF", weights = weights)
+#' freq_table(rgp, children, "npNP")
+#' freq_table(rgp, children, "npNP", max = 5)
 freq_table <- function(data, x, cols = "n", weights = NULL, na.rm = TRUE, total = TRUE, max = NA){
     # check whether there are some weights, if so sum the weights,
     # else count the observations
@@ -105,66 +105,4 @@ pre_print.freq_table <- function(x){
     x
 }
 
-
-#' Statistique conditionnelle
-#'
-#' Calcule une statistique (par défaut la moyenne arithmétique) d'une
-#' variable numérique pour chaque modalités d'une ou de deux variables
-#' catégorielles
-#'
-#' 
-#' @name cond_table
-#' @aliases cond_table
-#' @param data un tibble
-#' @param x une variable numérique
-#' @param x1 une première variable catégorielle
-#' @param x2 une éventuelle seconde variable catégorielle
-#' @param fun la fonction à appliquer (par défaut la moyenne)
-#' @param na.rm la valeur par défaut est `TRUE`, les observations pour
-#'     lesquelles la valeur de `x` est manquante sont retirées de
-#'     l'échantillon
-#' @param total si `TRUE` (valeur par défaut), un total est ajouté au
-#'     tableau
-#' @return un tibble
-#' @export
-#' @importFrom dplyr group_by summarise mutate_if bind_cols bind_rows
-#' @author Yves Croissant
-#' @examples
-#'
-#' cond_table(Salaires, heures, secteur)
-#' cond_table(Salaires, heures, secteur, sexe)
-#' cond_table(Salaires, heures, secteur, fun = var)
-#' 
-cond_table <- function(data, x, x1, x2 = NULL, fun = mean, na.rm = TRUE, total = TRUE){
-    x2_lgc <- deparse(substitute(x2)) != "NULL"
-    if (total){
-        mgtot <- data %>% summarise(stat = fun({{ x }}, na.rm = na.rm)) %>%
-            bind_cols("{{ x1 }}" := "Total")
-    }
-    if (x2_lgc){
-        if (total) mgtot <- mgtot %>% bind_cols("{{ x2 }}" := "Total")
-        ct <- data %>% group_by({{ x1 }}, {{ x2 }}) %>%
-            summarise(stat = fun({{ x }}, na.rm = na.rm))
-        if (total){
-            mg2 <- data %>% group_by({{ x1 }}) %>%
-                summarise(stat = fun({{ x }}, na.rm = na.rm)) %>%
-                bind_cols("{{ x2 }}" := "Total")
-            mg3 <- data %>% group_by({{ x2 }}) %>%
-                summarise(stat = fun({{ x }}, na.rm = na.rm)) %>%
-                bind_cols("{{ x1 }}" := "Total")
-            ct <- bind_rows(ct, mg2, mg3, mgtot)
-        }
-        ct <- ct %>% pivot_wider(names_from = {{ x2 }}, values_from = stat)
-    }
-    else{
-        ct <- data %>% group_by({{ x1 }}) %>%
-            summarise(stat = fun({{ x }}, na.rm = na.rm))
-        if (total){
-            mg <- data %>% summarise(stat = fun({{ x }}, na.rm = na.rm)) %>%
-                bind_cols("{{ x1 }}" := "Total")
-            ct <- bind_rows(ct, mg)
-        }
-    }
-    ct
-}
 

@@ -50,22 +50,22 @@ the underlying variable
 }
 \examples{
 
-# salaire is a class of wage in the Salaires data set ; first
+# wage is a class of wage in the wages data set ; first
 # extract unique values
-sals <- Salaires \%>\% pull(salaire) \%>\% levels
+wgs <- wages \%>\% pull(wage) \%>\% levels
 # compute the lower bonds
-sals \%>\% cls2val(0)
+wgs \%>\% cls2val(0)
 # lower bonds with a user specified center value for the first class
-sals \%>\% cls2val(0, xfirst = 0.18) \%>\% head
+wgs \%>\% cls2val(0, xfirst = 0.18) \%>\% head
 # compute the upper bonds
-sals \%>\% cls2val(1)
+wgs \%>\% cls2val(1)
 # note that the Inf upper bond is replaced by 50 + (50 - 40), ie
 # the lower bond plus the range of the previous class
-sals \%>\% cls2val(1, xlast = 100) \%>\% tail
+wgs \%>\% cls2val(1, xlast = 100) \%>\% tail
 # xlast is provided (the center of the last class) and the upper
 # bond is adapted accordingly, which means 50 + (100 - 50) * 2 =
 # 150
-sals \%>\% cls2val(1, inflate = 3) \%>\% tail
+wgs \%>\% cls2val(1, inflate = 3) \%>\% tail
 # inflate is provided, so that the range of the last class is three
 # times the range of the previous one
 }

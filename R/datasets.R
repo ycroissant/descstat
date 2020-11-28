@@ -80,7 +80,7 @@ NULL
 #'
 #' this extract gives information about a sample of French households
 #' 
-#' @name RGP77
+#' @name rgp
 #' @docType data
 #' @format a tibble containing : 
 #' - cars : number of cars

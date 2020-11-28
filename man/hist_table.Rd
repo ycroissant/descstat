@@ -59,15 +59,15 @@ Compute the counts for each class of  a numerical variable
 }
 \examples{
 
-# price is a numeric variable, a vector of breaks should be provided
-Padoue \%>\% hist_table(price, breaks = c(50, 100, 150, 200, 250, 300, 350, 400),
+# in table padova, price is a numeric variable, a vector of breaks should be provided
+padova \%>\% hist_table(price, breaks = c(50, 100, 150, 200, 250, 300, 350, 400),
                       right = TRUE)
-Padoue \%>\% hist_table(price, breaks = c(50, 100, 150, 200, 250, 300, 350, 400),
+padova \%>\% hist_table(price, breaks = c(50, 100, 150, 200, 250, 300, 350, 400),
                       right = TRUE, cols = "fd", vals = "xa")
-# salaire is a factor that represents the classes
-Salaires \%>\% hist_table(salaire, "d")
+# in table wages, wage  is a factor that represents the classes
+wages \%>\% hist_table(wage, "d")
 # a breaks argument is provided to reduce the number of classes
-Salaires \%>\% hist_table(salaire, breaks = c(10, 20, 30, 40, 50))
+wages \%>\% hist_table(wage, breaks = c(10, 20, 30, 40, 50))
 
 }
 \author{

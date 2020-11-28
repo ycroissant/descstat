@@ -3,8 +3,8 @@
 #' Computation of composite indexes (Laspeyres, Paasche and Fisher),
 #' chained or not.
 #' 
-#' @name indices
-#' @aliases indices
+#' @name indexes
+#' @aliases indexes
 #' @param data a tibble
 #' @param an the date of observation
 #' @param bien the series containing the goods that are part of the
@@ -12,14 +12,14 @@
 #' @param quant the quantity
 #' @param prix the price
 #' @param base the base date
-#' @param chaine if `TRUE`, chained indexes are computed
+#' @param chained if `TRUE`, chained indexes are computed
 #' @return a tibble
 #' @export
 #' @importFrom dplyr group_by summarise mutate_if bind_cols bind_rows
 #'     lag rename left_join
 #' @importFrom tidyr pivot_wider pivot_longer separate
 #' @author Yves Croissant
-indices <- function(data, an, bien, quant, prix, base, chaine = FALSE){
+indexes <- function(data, an, bien, quant, prix, base, chained = FALSE){
     data <- data %>% select(an = {{ an }}, bien = {{ bien }}, quant = {{ quant }}, prix = {{ prix }})
     # data for the base year
     data_base <- data %>% filter(an == base) %>% select(- an) %>%
@@ -34,7 +34,7 @@ indices <- function(data, an, bien, quant, prix, base, chaine = FALSE){
     data <- data %>% left_join(dep_tot) %>% mutate(cbudg = quant * prix / dep_tot) %>%
         select(- dep_tot)
     data <- data %>% left_join(data_base)
-    if (! chaine){
+    if (! chained){
         data_synth <- data %>% mutate(prix = prix / prix_base,
                                       quant = quant / quant_base) %>%
             select(- quant_base, - prix_base)

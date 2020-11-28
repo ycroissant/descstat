@@ -56,7 +56,7 @@ wgs <- wages \%>\% pull(wage) \%>\% levels
 # compute the lower bonds
 wgs \%>\% cls2val(0)
 # lower bonds with a user specified center value for the first class
-wgs \%>\% cls2val(0, xfirst = 0.18) \%>\% head
+wgs \%>\% cls2val(0, xfirst = 0.30) \%>\% head
 # compute the upper bonds
 wgs \%>\% cls2val(1)
 # note that the Inf upper bond is replaced by 50 + (50 - 40), ie

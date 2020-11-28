@@ -51,7 +51,7 @@ pad \%>\% pre_plot(y = "d", plot = "freqpoly") \%>\%
 ggplot() + geom_line(aes(x, y))
 ## A pie chart
 wages \%>\% freq_table(sector, "p", total = FALSE) \%>\%
-  pre_plot("p") \%>\% ggplot(aes(x = 2, y = p, fill = secteur)) +
+  pre_plot("p") \%>\% ggplot(aes(x = 2, y = p, fill = sector)) +
   geom_col() + geom_text(aes(y = ypos, label = round(p))) +
   coord_polar(theta = "y")
 

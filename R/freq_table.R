@@ -58,7 +58,7 @@ freq_table <- function(data, x, cols = "n", weights = NULL, na.rm = TRUE, total 
     # if max is filled, return a >= max category
     if (! is.na(max)){
         if (! x_is_num)
-            stop("l'argument max n'a de sens que si la variable est numérique")
+            stop("the max argument is only suitable for numerical series")
         ct1 <- filter(ct, {{ x }} < max)
         ct2 <- filter(ct, {{ x }} >= max) %>%
             summarise(n = sum(n), "{{ x }}" := max )

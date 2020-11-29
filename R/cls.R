@@ -9,9 +9,9 @@
 #'     last characters should be any of `[`, `(`, `]`, `)` and the
 #'     other characters should be interpreted as two numerical values
 #'     separated by a `,`
-#' @param pos a numeric between 0 and 1, 0 for the lower bond, 1
-#'     for the upper bond, 0.5 for the center of the class (and any
-#'     other value between 0 and 1)
+#' @param pos a numeric between 0 and 1, 0 for the lower bond, 1 for
+#'     the upper bond, 0.5 for the center of the class (and any other
+#'     value between 0 and 1)
 #' @param xfirst center of the first class, if one wants to specifie
 #'     something different from the average of the lower and the upper
 #'     bonds
@@ -19,10 +19,12 @@
 #'     something different from the average of the lower and the upper
 #'     bonds
 #' @param inflate in the case where the upper bond is infinite and
-#'     `xlast` is not provided, the upper bond of the last class is set
-#'     to the lower bond of the last class and the range of the
+#'     `xlast` is not provided, the upper bond of the last class is
+#'     set to the lower bond of the last class and the range of the
 #'     previous class times this coefficient (which default value is
 #'     one)
+#' @param y the index of the variable for which the `cls2val` method
+#'     for `cont_table` should be applied
 #' @param ... further arguments
 #' @return a numerical vector
 #' @export
@@ -184,7 +186,7 @@ recut <- function(x, breaks = NULL){
 
 #' @rdname cls2val
 #' @export
-cls2val.cont_table <- function(x, y = 1, pos = 0.5, ...){
+cls2val.cont_table <- function(x, pos = 0.5, ..., y = 1){
     nms_x <- names(x)[[y]]
     x <- x %>% total.omit
     lim <- attr(x, "limits")[[y]]

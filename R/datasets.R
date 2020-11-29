@@ -21,7 +21,6 @@
 #' 
 #' @source Employment survey 2018, site of the [INSEE](https://www.insee.fr/fr/statistiques/4191029)
 #'
-
 NULL
 
 
@@ -45,7 +44,6 @@ NULL
 #'
 #' @source DADS survey 2015, site of the [INSEE](https://www.insee.fr/fr/statistiques/3536754)
 #'
-
 NULL
 
 #' Housing prices in Padova
@@ -71,9 +69,10 @@ NULL
 #' @source
 #' [site of Data in Brief](https://www.sciencedirect.com/science/article/pii/S2352340915003224)
 #' @references
-#' \insertRef{BONI:COPI:15}{statecoaes}
+#'  Bonifaci P, Copiello S
+#'  (2015). "Real estate market and building energy performance: Data for a mass appraisal approach."
+#'  _Data in Brief_, *5*, 1060-1065. ISSN 2352-3409
 #' 
-
 NULL
 
 #' Extract of the French census

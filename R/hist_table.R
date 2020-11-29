@@ -29,7 +29,7 @@
 #' @return a tibble containing the specified values of `vals` and
 #'     `cols`
 #' @export
-#' @importFrom dplyr all_of slice arrange tibble
+#' @importFrom dplyr all_of slice arrange tibble add_row
 #' @author Yves Croissant
 #' @examples
 #'

@@ -21,7 +21,7 @@
 #'     case `x`, `y`, `xend` and `yend`.
 #' @param ... further arguments
 #' @return a tibble
-#' @importFrom dplyr desc
+#' @importFrom dplyr desc as_tibble transmute
 #' @export
 #' @author Yves Croissant
 #' @examples

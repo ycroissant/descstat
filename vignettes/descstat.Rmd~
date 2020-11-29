@@ -1,0 +1,602 @@
+---
+title: dfidx, an R package for indexed data
+author: Yves Croissant
+date: 2020/03/23
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+  pdf_document:
+    number_sections: true
+
+vignette: >
+  %\VignetteIndexEntry{dfidx: an R package for indexed data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+# Motivations
+
+In some situations, series from a `data.frame` have a natural
+two-dimensional (tabular) representation because each observation can
+be uniquely characterized by a combination of two indexes. Two major
+cases of this situations in applied econometrics are:
+
+- panel data, where the same individuals are observed for several time
+  periods,
+- random utility models, where each observation describes the features
+  of an alternative among a set of alternatives for a given choice
+  situation.
+
+The idea of `dfidx` is to keep in the same object the data and
+the information about this structure. A `dfidx` is a
+`data.frame` with an `idx` column, which is a `data.frame` that
+contains the series that defines the indexes.
+
+A `dfidx` is created using the homonymous function which has as
+main and mandatory argument a `data.frame`.
+
+# Basic use of the `dfidx` function
+
+The `dfidx` package is loaded using:
+
+```{r label = setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, widtht = 65)
+```
+
+```{r }
+library("dfidx")
+```
+
+To illustrate the use of `dfidx`, we'll use the `TravelMode` data set
+from the `AER` package which contains observations on 210 choice
+situations for 4 alternatives, `air`, `train`, `bus` and `car` (in
+this order). Rows are ordered by choice situation first and then by
+alternatives.
+
+
+```{r }
+data("TravelMode", package = "AER")
+head(TravelMode)
+```
+
+As the first two columns contains the two indexes, the `idx`
+argument can be unset:
+
+```{r}
+TM1 <- dfidx(TravelMode, drop.index = FALSE)
+```
+
+The resulting object is of class `dfidx` and is a `data.frame` with an
+`idx` column that can be retrieved using the `idx` function:
+
+```{r }
+idx(TM1) %>% print(n = 3)
+```
+
+`dfidx` provides a customized `print` method which print the first
+lines of the data frame and of its index.
+
+```{r }
+TM1 %>% print(n = 3)
+```
+
+Note the use of the `drop.index` argument set to `FALSE` in order to
+keep the individual series which define the indexes as stand alone
+series in the `data.frame`. With the default value, these series are
+removed from the `data.frame`:
+
+```{r}
+TM1 <- dfidx(TravelMode)
+TM1 %>% print(n = 3)
+```
+
+The `idx` argument may be a list or a character vector of length two
+in order to indicate which columns of the data frame contain the
+indexes:
+
+
+```{r collapse = TRUE}
+TM2 <- dfidx(TravelMode, idx = c("individual", "mode"))
+TM3 <- dfidx(TravelMode, idx = list("individual", "mode"))
+c(identical(TM2, TM3), identical(TM1, TM2))
+```
+The series contained in the `idx` data frame can be named, using the
+`idnames` argument. 
+
+```{r }
+TM3b <- dfidx(TravelMode, idnames = c(NA, "trmode"))
+```
+Any `NA` in this vector will result in using
+the default name, which is the name of the original series.
+
+In the case where the data set is *balanced* and observations are
+ordered by the first index first and then by the second, only one or
+none of the indexes can be provided. `idx` can in this case be either
+the name of the first index:
+
+```{r }
+TravelMode2 <- dplyr::select(TravelMode, - mode)
+TM4 <- dfidx(TravelMode2, idx = "individual", idnames = c("individual", "mode"))
+TM4 %>% print(n = 3)
+```
+or an integer equal to the cardinal of the first index:
+
+```{r }
+TravelMode3 <- dplyr::select(TravelMode, - mode)
+TM5 <- dfidx(TravelMode3, idx = 210, idnames = c("individual", "mode"))
+TM5 %>% print(n = 3)
+```
+Moreover, the levels of the second index can be indicated,
+using the `levels` argument. 
+
+```{r collapse = TRUE}
+TM4b <- dfidx(TravelMode2, levels = c("air", "train", "bus", "car"),
+                   idnames = c("individual", "mode"),
+                   idx = "individual")
+TM5b <- dfidx(TravelMode3, idx = 210, idnames = c("individual", "mode"),
+                    levels = c("air", "train", "bus", "car"))
+c(identical(TM4b, TM1), identical(TM5b, TM1))
+```
+# More advanced use of `dfidx`
+
+## Nesting structure
+
+One or both of the indexes may be nested in another series. In this
+case, the `idx` argument must be a list of length two, each element
+being a character of length two (if there is a nesting structure) or
+one.
+
+As a first example, consider the `JapaneseFDI` data set of the
+`mlogit` package which deal with the implementation of Japanese
+production units in Europe. The first index `firm` refers to the the
+production units, the second one `region` to the European region where
+the production units is implemented. The `country` variable nests the
+second index.
+
+```{r }
+data("JapaneseFDI", package = "mlogit")
+JapaneseFDI <- dplyr::select(JapaneseFDI, 1:8)
+head(JapaneseFDI, 3)
+JP1 <- dfidx(JapaneseFDI, idx = list("firm", c("region", "country")))
+head(JP1, 3)
+JP1b <- dfidx(JapaneseFDI, idx = list("firm", c("region", "country")),
+              idnames = c("japf", "iso80"))
+head(JP1b, 3)
+```
+
+The `Produc` data set from the `plm` package contains data for 48
+American states for 17 years. The first index (`state`) is nested in
+the `region` variable:
+
+
+```{r }
+data("Produc", package = "plm")
+head(Produc, 3)
+Pr <- dfidx(Produc, idx = list(c("state", "region"), "year"))
+head(Pr, 3)
+```
+
+## Data frames in wide format
+
+`dfidx` can deal with data frames in wide format, *i.e* for which each
+series for a given value of the second index is a column of the data
+frame. The two supplementary arguments in this case are `shape` which
+should be set to `wide` and `varying` which indicate which columns
+should be merged in the resulting long formated data frame. Not that
+the `shape` argument is automatically set to `wide` if the `varying`
+argument is set.
+
+```{r }
+data("Fishing", package = "mlogit")
+head(Fishing, 3)
+Fi <- dfidx(Fishing, shape = "wide", varying = 2:9)
+Fi2 <- dfidx(Fishing, varying = 2:9)
+identical(Fi, Fi2)
+head(Fi, 3)
+```
+
+In this case, the two indexes are auto-generated with default names
+`id1` and `id2`. Customized names can be provided using the `idnames`
+argument.
+
+```{r }
+data("Fishing", package = "mlogit")
+Fi <- dfidx(Fishing, shape = "wide", varying = 2:9, idnames = c("chid", "alt"))
+
+head(Fi, 3)
+```
+A nesting structure can be indicated for the first index. As an
+example, in the `Train` data set of the `mlogit` package, each line
+describes the features of the choice situation (a choice between two
+artifactual train tickets `A` and `B`). Each individual face different
+choice situations so that there is an `id` variable which nests the
+choice situation variable called `choiceid`. Not that the
+second index cannot be provided for data frames in long format.
+
+```{r }
+data("Train", package = "mlogit")
+Train$choiceid <- 1:nrow(Train)
+head(Train, 3)
+Tr <- dfidx(Train, shape = "wide", varying = 4:11, sep = "_",
+                  idx = list(c("choiceid", "id")), idnames = c(NA, "alt"))
+head(Tr, 3)
+```
+
+# Getting the indexes or their names
+
+The names (and position) of the `idx` column can be obtained as a
+named integer (the integer being the position of the column and the
+name its name) using the `idx_name` function:
+
+```{r }
+idx_name(Tr)
+```
+To get the name of one of the indexes, the second argument, `n`, is
+set either to 1 or 2 to get the first or the second index, ignoring
+the nesting variables:
+
+```{r collapse = TRUE}
+idx_name(Tr, 1)
+idx_name(idx(Tr), 1)
+idx_name(Tr$change, 1)
+idx_name(Tr, 2)
+```
+
+Not that `idx_name` can be in this case applied to a `dfidx`, a `idx`
+or a `xseries` object.
+
+To get a nesting variable, set the `m` argument to 2 or more:
+
+```{r }
+idx_name(Tr, 1, 2)
+idx_name(Tr, 2, 2)
+```
+To extract one or all the indexes, the `idx` function is used. This
+function has already been encountered when one wants to extract the
+`idx` column of a `dfidx` object. It works also for a `idx` and a
+`xseries` (in the first case, the function just returns its argument):
+
+```{r }
+idx1 <- idx(Tr)
+idx2 <- idx(idx(Tr))
+idx3 <- idx(Tr$change)
+c(identical(idx1, idx2), identical(idx1, idx3))
+```
+Use the  same `n` and `m` arguments as for the `idx_name` function in
+order to extract a specific series. For example, to extract the
+individual index, which nests the choice index, use:
+
+```{r }
+id_index1 <- idx(Tr, n = 1, m = 2)
+id_index2 <- idx(idx(Tr), n = 1, m = 2)
+id_index3 <- idx(Tr$change, n = 1, m = 2)
+c(identical(id_index1, id_index2), identical(id_index2, id_index3))
+```
+
+
+# Extractors
+
+Extractors for `data.frame` include:
+
+- `[`, which can be used with one element (defining columns to
+  extract) or two arguments (defining lines and columns to extract),
+- `[[`, which returns one column of the `data.frame`. 
+
+## Commands that return a `data.frame`
+
+Consider first the use of `[`. . If two arguments are provided, a
+`data.frame` is always returned except when a single series is
+selected, in which case the required series is returned (a
+`data.frame` is returned in this case if `drop = FALSE`).
+
+A specific method (`[.dfidx`) is provided for one reason: the column
+that contain the indexes should be "sticky" (we borrow this idea from
+the `sf` package), which means that it should be always returned while
+using the extractor operator, even if it is not explicitely selected.
+
+```{r}
+TM <- dfidx(TravelMode)
+```
+
+```{r }
+TMsub <- TM[TM$size == 1, ]
+TMsub %>% print(n = 2)
+idx(TMsub) %>% print(n = 2)
+TMsub2 <- TM[TM$size == 1, c("wait", "vcost")]
+TMsub3 <- TM[TM$size == 1, "wait", drop = FALSE]
+```
+
+All the previous command extract the lines for households of size 1
+and, in the first case all the series, in the second case two of them
+and in the third case only one series. For this latter case, we added
+`drop = FALSE` so that a `data.frame` and not a series is returned.
+
+When `[` is used with only one argument or an empty first argument, no
+lines subsetting is performed.
+
+```{r }
+TM[, c("wait", "gcost")] %>% print(n = 2)
+wait1 <- TM[, c("wait"), drop = FALSE]
+wait2 <- TM["wait"]
+identical(wait1, wait2)
+wait1 %>% print(n = 2)
+```
+
+## Commmands that return a series
+
+A series can be extracted using any of the following commands:
+
+```{r }
+wait1 <- TM[, "wait"]
+wait2 <- TM[["wait"]]
+wait3 <- TM$wait
+c(identical(wait1, wait2), identical(wait1, wait3))
+```
+
+The results is a `xseries` which inherit the `idx` column from the
+`data.frame` it has been extracted from as an attribute :
+
+```{r }
+wait1 %>% print(n = 3)
+class(wait1)
+idx(wait1) %>% print(n = 3)
+```
+
+Note that, except when `dfidx` hasn't been used with `drop.index =
+FALSE`, a series which define the indexes is droped from the data
+frame (but is one of the column of the `idx` column of the data
+frame). It can be therefore retrieved using:
+
+
+```{r }
+TM1$idx$mode %>% head
+```
+or 
+
+```{r }
+idx(TM1)$mode %>% head
+```
+or more simply by applying the `$` operator as if the series was a stand-alone
+series in the data frame :
+
+```{r }
+TM1$mode %>% print(n = 3)
+```
+In this last case, the resulting series is a `xseries`, *ie* it inherits
+the index data frame as an attribute.
+
+
+## User defined class for extracted series
+
+While creating the `dfidx`, a `pkg` argument can be indicated, so that
+the resulting `dfidx` object and its series are respectively of class
+`c(dfidx_pkg, dfidx)` and `c(xseries_pkg, xseries)` which enables the
+definition of special methods for `dfidx` and `xseries` objects.
+
+```{r }
+Pr2 <- dfidx(Produc, idx = list(c("state", "region"), "year"), pkg = "plm")
+gsp1 <- Pr2[, "gsp"]
+gsp2 <- Pr2[["gsp"]]
+gsp3 <- Pr2$gsp
+c(identical(gsp1, gsp2), identical(gsp1, gsp3))
+class(gsp1)
+```
+For example, we want to define a `lag` method for `xseries_plm`
+objects. While lagging there should be a `NA` not only on the first
+position of the resulting vector like for time-series, but each time
+we encounter a new individual. A minimal `lag` could therefore be
+written like:
+
+```{r }
+lag.xseries_plm <- function(x, ...){
+    .idx <- idx(x)
+    class <- class(x)
+    x <- unclass(x)
+    id <- .idx[[1]]
+    lgt <- length(id)
+    lagid <- c("", id[- lgt])
+    sameid <- lagid ==  id
+    x <- c(NA, x[- lgt])
+    x[! sameid] <- NA
+    structure(x, class = class, idx = .idx)
+}
+lgsp1 <- stats::lag(gsp1)
+lgsp1 %>% print(n = 3)
+class(lgsp1)
+rbind(gsp1, lgsp1)[, 1:20]
+```
+
+Note the use of `stats::lag` instead of `lag` which ensures that the
+`stats::lag` function is used, even if the `dplyr` (or `tidyverse`)
+package is attached.
+
+# `tidyverse`
+
+## `tibbles`
+
+`dfidx` support tibbles. Let first make our original `data.frame` a
+`tibble`:
+
+
+```{r }
+TMtb <- as_tibble(TravelMode)
+class(TMtb)
+TMtb %>% head(2)
+```
+A tibble adds classes `tbl_df` and `tbl` to a `data.frame` object. If
+the first argument of `dfidx` is a `tibble` the resulting object
+inherits `tibble`'s classes:
+
+
+```{r }
+TMtb <- dfidx(TMtb, clseries = "pseries")
+class(TMtb)
+```
+
+Extracting from a `dfidx`-`tibble` returns a
+`dfidx`-`tibble` object:
+
+
+```{r }
+ext1 <- TMtb[c("wait", "vcost")]
+ext2 <- TMtb[, c("wait", "vcost")]
+ext2 %>% head(2)
+idx(ext2) %>% head(2)
+identical(ext1, ext2)
+un1 <- TMtb[, c("wait"), drop = FALSE]
+un2 <- TMtb["wait"]
+identical(un1, un2)
+sub1 <- TMtb[TMtb$size == 2, c("wait", "vcost")]
+sub2 <- TMtb[TMtb$size == 2, "wait", drop = FALSE]
+```
+
+extracted series are identical to those obtained from a
+`c("dfidx", "data.frame")`.
+
+```{r }
+wait1 <- TMtb[, "wait"]
+wait2 <- TMtb[["wait"]]
+wait3 <- TMtb$wait
+c(identical(wait1, wait2), identical(wait1, wait3))
+class(idx(wait1))
+```
+
+## `dplyr`
+
+`dfidx` supports some of the verbs of `dplyr`, namely, for the
+current version:
+
+- `select` to select columns,
+- `filter` to select some rows using logical conditions,
+- `arrange` to sort the lines according to one or several variables,
+- `mutate` and `transmute` for creating new series,
+- `slice` to select some rows using their position.
+
+`dplyr` verbs don't work with `dfidx` objects for two main
+reasons:
+
+- the first one is that with most of the verbs (`select` is an
+  exception), the returned object is a `data.frame` (or a `tibble`)
+  and not a `dfidx`,
+- the second one is that the index column should be "sticky", which
+  means that it sould be always returned, even while selecting a
+  subset of columns which don't include the index column or while
+  using `transmute`. 
+  
+Therefore, specific methods are provided for `dplyr`'s verb. The
+general strategy consists on:
+
+@. first save the original attributes of the argument (a `dfidx`
+  object),
+@. coerce to a `data.frame` or a tibble using the `as.data.frame`
+  method,
+@. use `dplyr`'s verb,
+@. add the column containing the index if necessary (*i.e.* while
+  using `transmute` or while `select`ing a subset of columns which
+  don't contain the index column),
+@. change some of the attributes if necessary,
+@. attach the attributes to the `data.frame` and returns the result.
+
+
+```{r }
+select(TM, vcost, idx, size) %>% print(n = 2)
+select(TM, vcost, size) %>% print(n = 2)
+arrange(TM, income, desc(vcost)) %>% print(n = 2)
+mutate(TM, linc = log(income), linc2 = linc ^ 2) %>% print(n = 2)
+transmute(TM, linc = log(income), linc2 = linc ^ 2) %>% print(n = 2)
+filter(TM, wait <= 50, income  == 35) %>% print(n = 2)
+slice(TM, 1:3)
+```
+
+To extract a series, the `pull` function can be used:
+
+
+```{r }
+pull(TM, vcost)
+```
+
+```{r eval = FALSE, include = FALSE}
+TM[, "wait"]
+TM[, "wait", drop = FALSE]
+TM[, "wait", drop = TRUE]
+TM[, c("wait", "vcost")]
+TM[, c("wait", "vcost"), drop = TRUE]
+TM[, c("wait", "vcost"), drop = FALSE]
+
+TM[TM$size == 1, "wait"]
+TM[TM$size == 1, "wait", drop = FALSE]
+TM[TM$size == 1, "wait", drop = TRUE]
+TM[TM$size == 1, c("wait", "vcost")]
+TM[TM$size == 1, c("wait", "vcost"), drop = TRUE]
+TM[TM$size == 1, c("wait", "vcost"), drop = FALSE]
+
+TM[1:5, "wait"]
+TM[1:5, "wait", drop = FALSE]
+TM[1:5, "wait", drop = TRUE]
+TM[1:5, c("wait", "vcost")]
+TM[1:5, c("wait", "vcost"), drop = TRUE]
+TM[1:5, c("wait", "vcost"), drop = FALSE]
+
+TM["wait"]
+TM[c("wait", "vcost")]
+```
+
+# Model building
+
+The two main steps in `R` in order to estimate a model is to use the
+`model.frame` function to construct a `data.frame`, using a `formula`
+and a `data.frame` and then to extract from it the matrix of
+covariates using the `model.matrix` function. 
+
+## `model.frame`
+
+The default method of `model.frame` has as first two arguments
+`formula`  and `data`. It returns a `data.frame` with a `terms`
+attribute. Some other methods exists in the `stats` package, for
+example for `lm` and `glm` object with a first and main argument
+called `formula`. This is quite unusual and misleading as for most of
+the generic functions in `R`, the first argument is called either `x`
+or `object`. 
+
+Another noticeable method for `model.frame` is provided by the
+`Formula` package, and in this case the first argument is a `Formula`
+object, which is an extended formula which can contains several parts
+on the left and/or on the right hand side of the formula.
+
+We provide a `model.frame` method for `dfidx` objects, mainly
+because the `idx` column should be returned in the resulting
+`data.frame`. This leads to an unusual order of the arguments, the
+data frame first and then the formula. The method then first extract
+(and subset if necessary the `idx` column), call the
+`formula`/`Formula` method and then add to the resulting data frame
+the `idx` column. 
+
+```{r }
+mfTM <- model.frame(TM, choice ~ vcost | income + size | travel, subset = income > 50)
+mfTM %>% print(n = 3)
+attr(mfTM, "terms")
+attr(mfTM, "formula")
+```
+
+## `model.matrix`
+
+`model.matrix` is a generic function and for the default method, the
+first two arguments are a `terms` object and a `data.frame`. In `lm`,
+the `terms` is extracted from the `model.frame` internally constructed
+using the `model.frame` function. This means that, at least in this
+context, `model.matrix` doesn't need a `formula`/`term` argument and a
+`data.frame`, but only a `data.frame` returned by the `model.frame`,
+i.e. a `data.frame` with a `terms` attribute.
+
+We use this idea for the `model.matrix` method for `dfidx`
+object ; the only required argument is a `dfidx` returned by the
+`model.frame` function. The formula is then extracted from the
+`dfidx` and the `Formula` or default method is then called.
+
+```{r }
+model.matrix(mfTM, rhs = 1) %>% head(2)
+model.matrix(mfTM, rhs = 2) %>% head(2)
+model.matrix(mfTM, rhs = 1:3) %>% head(2)
+```

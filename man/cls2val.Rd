@@ -13,7 +13,7 @@ cls2val(x, pos = 0, xfirst = NULL, xlast = NULL, inflate = NULL, ...)
 
 \method{cls2val}{factor}(x, pos = 0, xfirst = NULL, xlast = NULL, inflate = NULL, ...)
 
-\method{cls2val}{cont_table}(x, y = 1, pos = 0.5, ...)
+\method{cls2val}{cont_table}(x, pos = 0.5, ..., y = 1)
 }
 \arguments{
 \item{x}{a series that contains a class of values, the first and
@@ -21,9 +21,9 @@ last characters should be any of \code{[}, \code{(}, \verb{]}, \verb{)} and the
 other characters should be interpreted as two numerical values
 separated by a \verb{,}}
 
-\item{pos}{a numeric between 0 and 1, 0 for the lower bond, 1
-for the upper bond, 0.5 for the center of the class (and any
-other value between 0 and 1)}
+\item{pos}{a numeric between 0 and 1, 0 for the lower bond, 1 for
+the upper bond, 0.5 for the center of the class (and any other
+value between 0 and 1)}
 
 \item{xfirst}{center of the first class, if one wants to specifie
 something different from the average of the lower and the upper
@@ -34,12 +34,15 @@ something different from the average of the lower and the upper
 bonds}
 
 \item{inflate}{in the case where the upper bond is infinite and
-\code{xlast} is not provided, the upper bond of the last class is set
-to the lower bond of the last class and the range of the
+\code{xlast} is not provided, the upper bond of the last class is
+set to the lower bond of the last class and the range of the
 previous class times this coefficient (which default value is
 one)}
 
 \item{...}{further arguments}
+
+\item{y}{the index of the variable for which the \code{cls2val} method
+for \code{cont_table} should be applied}
 }
 \value{
 a numerical vector

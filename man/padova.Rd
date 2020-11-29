@@ -27,5 +27,7 @@ This data set document characteristics (including the prices) of a
 sample of housings in Padova
 }
 \references{
-\insertRef{BONI:COPI:15}{statecoaes}
+Bonifaci P, Copiello S
+(2015). "Real estate market and building energy performance: Data for a mass appraisal approach."
+\emph{Data in Brief}, \emph{5}, 1060-1065. ISSN 2352-3409
 }

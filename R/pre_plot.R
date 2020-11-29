@@ -43,7 +43,9 @@ pre_plot <- function(x, y = NULL, plot = NULL, ...)
 
 #' @rdname pre_plot
 #' @export
-pre_plot.hist_table <- function(x, y = NULL, plot = "histogram", ...){
+pre_plot.hist_table <- function(x, y = NULL,
+                                plot = c("histogram", "freqpoly"), ...){
+    plot <- match.arg(plot)
     data <- x
     if (! "x" %in% names(data))
         stop("the table should contains the center of the classes")
@@ -97,7 +99,8 @@ pre_plot.hist_table <- function(x, y = NULL, plot = "histogram", ...){
 
 #' @rdname pre_plot
 #' @export
-pre_plot.freq_table <- function(x, y = NULL, plot = "banner", ...){
+pre_plot.freq_table <- function(x, y = NULL, plot = c("banner", "cumulative"), ...){
+    plot <- match.arg(plot)
     if (plot == "banner"){
         if (is.null(y)) y <- names(x)[2]
         x <- x %>% select(1, all_of(y))

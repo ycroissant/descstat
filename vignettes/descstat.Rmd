@@ -15,5 +15,157 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r }
+# TODO the default value of total should be set to FALSE
+library("descstat")
+```
 
-# Motivations
+# Frequency tables
+
+Frequency tables are suitable to summarise the univariate distribution
+of a categorical or an integer series. In `tidyverse`, this task can be
+performed using the `dplyr::count` function. For example, the `rgp`
+data set, which is an extract of the French cencus, contains the
+number of children in households:
+
+
+```{r }
+rgp %>% count(children)
+```
+
+## Computing a frequency table
+
+The `descstat::freq_table` function performs the same task:
+
+```{r }
+rgp %>% freq_table(children, total = FALSE)
+```
+
+but it has several further arguments which can improve the results:
+
+- `cols` is a character containing one or several of the following
+  letters:
+  - `n` for the count or absolute frequencies (the default),
+  - `f` for the (relative) frequencies,
+  - `p` for the percentage (ie $f\times 100$).
+  using upper cases letters return the cummulative values
+- `total` a boolean, if `TRUE`, a total is returned,
+- `max` suitable for a integer series only, an integer which is the
+  maximum value presented in the frequency table, eg `max = 3` create
+  a last line which is `>=3`
+  
+The following line use all the possible letters.
+
+```{r }
+rgp %>% freq_table(children, total = FALSE, cols = "nfpNFP")
+```
+
+As there are few occurences of families with more than 3
+children, we set `max = 3` :
+
+```{r }
+rgp %>% freq_table(children, total = FALSE, max = 3)
+```
+
+## Printing a frequency table
+
+Note that in the printed table, the `children` series is now a
+character as the last value is now `>=3`. Actually `freq_table`
+returns an object of class `freq_table` which inherit from the
+`tbl_df` class. A look at the structure of the object:
+
+```{r }
+rgp %>% freq_table(children, max = 3) %>% str
+```
+
+indicates that we still have a tibble, with a numeric `children`
+series for which the last two values equal to 3 (for 3 and more) and
+`Inf` (for the total). There are two attributes, `max` and `total`,
+the first one being a numeric and the second one a boolean.
+
+A `pre_print` function is provided with a method for
+`freq_table` objects. It turns the `children` series in a `character`,
+with `3` and `Inf` replaced by `>=3` and `Total`. This `pre_print`
+method is include in the `format` method for `freq_table` which is
+then passed to the `tbl_df` method:
+
+```{r }
+descstat:::format.freq_table
+```
+The `pre_print` function should be used explicitely while using
+`knitr::kable`, as this function don't use any `format` method:
+
+```{r }
+rgp %>% freq_table(children, max = 3) %>% pre_print %>% knitr::kable()
+```
+
+## Ploting a frequency table
+
+The most natural way to plot a frequency table with `ggplot` is to use
+`geom_col` (or `geom_bar` with `stat = 'identity').
+
+```{r }
+cld <- rgp %>% freq_table(children, cols = "nf", max = 3, total = FALSE)
+library("ggplot2")
+cld %>% ggplot(aes(children, f)) + geom_col()
+```
+
+To get more complicated graphics, a `pre_plot` method is provided,
+with a `plot` argument equal to `banner` or `cummulative`. `plot =
+banner` plot.
+
+```{r }
+cld %>% pre_plot("f", plot = "banner")
+```
+
+`pre_plot` returns in this case an `ypos` series which indicate the
+coordinate where to write the label corresponding to the frequencies.
+
+```{r }
+bnp <- cld %>% pre_plot("f", plot = "banner") %>%
+    ggplot(aes(x = 2, y = f, fill = factor(children))) +
+    geom_col() +
+    geom_text(aes(y = ypos, label = f)) +
+    scale_x_continuous(label = NULL)
+bnp
+```
+
+using polar coordinates, we get a pie chart:
+
+```{r }
+bnp + coord_polar(theta = "y") + theme_void()
+```
+
+changing the range of the `x` values, we get a hole in the pie chart
+which result in the so called donut chart:
+
+```{r }
+bnp + scale_x_continuous(limits = c(1, 2.5)) +
+    coord_polar(theta = "y") + theme_void()
+```
+
+The other possible value for the `plot` argument of `pre_plot` is
+cumulative:
+
+
+```{r }
+cld <- rgp %>% freq_table(children, "F", max = 5, total = FALSE)
+cld %>% pre_plot(plot = "cumulative")
+```
+this returns the 4 series which have the names of the aesthetics that
+are mandatory for `geom_segment`; `x`, `xend`, `y` and `ydend`. It
+also returns a `pos` series with which one can draw differently the
+horizontal (`hor`) and the vertical (`vert`) segments, using for
+example the `linetype` aesthetic.
+
+
+```{r }
+# To do compute automatically F and enables the ploting of N and P
+cld %>% pre_plot(plot = "cumulative") %>% 
+    ggplot() +
+    geom_segment(aes(x = x, xend = xend, y = y, yend = yend,
+                     linetype = pos)) +
+    guides(linetype = FALSE) +
+    labs(x = "number of children", y = "cummulative frequency")
+```
+

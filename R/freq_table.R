@@ -41,7 +41,7 @@
 #' freq_table(employment, activity, "fF", weights = weights)
 #' freq_table(rgp, children, "npNP")
 #' freq_table(rgp, children, "npNP", max = 5)
-freq_table <- function(data, x, cols = "n", weights = NULL, na.rm = TRUE, total = TRUE, max = NA){
+freq_table <- function(data, x, cols = "n", weights = NULL, na.rm = TRUE, total = FALSE, max = NA){
     # check whether there are some weights, if so sum the weights,
     # else count the observations
     wgts_lgc <- deparse(substitute(weights)) != "NULL"

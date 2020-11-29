@@ -12,7 +12,7 @@ freq_table(
   cols = "n",
   weights = NULL,
   na.rm = TRUE,
-  total = TRUE,
+  total = FALSE,
   max = NA
 )
 

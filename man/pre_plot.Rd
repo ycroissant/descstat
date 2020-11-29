@@ -9,9 +9,9 @@
 \usage{
 pre_plot(x, y = NULL, plot = NULL, ...)
 
-\method{pre_plot}{hist_table}(x, y = NULL, plot = "histogram", ...)
+\method{pre_plot}{hist_table}(x, y = NULL, plot = c("histogram", "freqpoly"), ...)
 
-\method{pre_plot}{freq_table}(x, y = NULL, plot = "banner", ...)
+\method{pre_plot}{freq_table}(x, y = NULL, plot = c("banner", "cumulative"), ...)
 
 \method{pre_plot}{cont_table}(x, ...)
 }

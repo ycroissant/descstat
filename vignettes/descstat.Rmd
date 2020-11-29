@@ -150,7 +150,7 @@ cumulative:
 
 ```{r }
 cld <- rgp %>% freq_table(children, "F", max = 5, total = FALSE)
-cld %>% pre_plot(plot = "cumulative")
+cld %>% pre_plot(plot = "cumulative") %>% print(n = 5)
 ```
 this returns the 4 series which have the names of the aesthetics that
 are mandatory for `geom_segment`; `x`, `xend`, `y` and `ydend`. It
@@ -166,6 +166,21 @@ cld %>% pre_plot(plot = "cumulative") %>%
     geom_segment(aes(x = x, xend = xend, y = y, yend = yend,
                      linetype = pos)) +
     guides(linetype = FALSE) +
-    labs(x = "number of children", y = "cummulative frequency")
+    labs(x = "number of children", y = "cumulative frequency")
+```
+
+# Histogram tables
+
+`descstat::hist_table` computes an histogram table, ie a table that
+contains the frequencies for different classes of a numerical
+series. This numerical series can either be numerical or coded as a
+class in the original (raw) tibble. 
+
+For example, the `wages` data set contains two series called `wage`
+and `size` which respectively indicate the class of wages and the
+class of firm size.
+
+```{r }
+wages %>% print(n = 3)
 ```
 

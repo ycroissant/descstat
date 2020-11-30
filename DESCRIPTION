@@ -2,8 +2,7 @@ Package: descstat
 Version: 0.1-0
 Date: 2020-11-23
 Title: Tools for descriptive statistics
-Author: Yves Croissant <yves.croissant@univ-reunion.fr>
-Maintainer: Yves Croissant <yves.croissant@univ-reunion.fr>
+Authors@R: person("Yves", "Croissant", role = c("aut", "cre"), email = "yves.croissant@univ-reunion.fr")
 Depends: R (>= 4.0.0), dplyr
 Imports: rlang, purrr, tidyr
 Suggests: knitr, ggplot2

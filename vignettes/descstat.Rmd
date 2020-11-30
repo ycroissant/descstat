@@ -10,7 +10,7 @@ output:
     number_sections: true
 
 vignette: >
-  %\VignetteIndexEntry{**desctat**: an R package for descriptive statistics}
+  %\VignetteIndexEntry{desctat: an R package for descriptive statistics}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

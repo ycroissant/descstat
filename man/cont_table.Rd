@@ -21,8 +21,8 @@ cont_table(
   data,
   y1,
   y2,
-  pond = NULL,
-  total = TRUE,
+  weights = NULL,
+  total = FALSE,
   first1 = NULL,
   last1 = NULL,
   inflate1 = NULL,
@@ -64,7 +64,7 @@ regline(formula, data)
 
 \item{y2}{a second factor}
 
-\item{pond}{a series containing the weights that should be used to
+\item{weights}{a series containing the weights that should be used to
 mimic the population}
 
 \item{total}{if \code{TRUE} (the defaut values), a total is added to the
@@ -117,7 +117,7 @@ the variance decomposition.
 \examples{
 
 cont_table(employment, education, sex)
-cont_table(employment, education, sex, pond = weights)
+cont_table(employment, education, sex, weights = weights)
 cont_table(employment, education, sex) \%>\% conditional(sex)
 cont_table(wages, wage, size)
 cont_table(wages, wage, size) \%>\% joint

@@ -9,6 +9,7 @@ hist_table(
   x,
   cols = "n",
   vals = "x",
+  weights = NULL,
   breaks = NULL,
   xfirst = NULL,
   xlast = NULL,
@@ -32,6 +33,9 @@ obtained using the same letters in upper caps. Compared to
 the variable that should be returned ; \code{x} for the center of
 the class, \code{l} and \code{u} for the lower and upper limit of the
 class, \code{a} for the range}
+
+\item{weights}{a series that contain the weights tant enables the
+sample to mimic the population}
 
 \item{breaks}{a numerical vector of class limits}
 

@@ -19,7 +19,7 @@
 #' @param y the series on which the operation should be computed
 #' @param y1 a first factor
 #' @param y2 a second factor
-#' @param pond a series containing the weights that should be used to
+#' @param weights a series containing the weights that should be used to
 #'     mimic the population
 #' @param total if `TRUE` (the defaut values), a total is added to the
 #'     table
@@ -46,7 +46,7 @@
 #' @examples
 #'
 #' cont_table(employment, education, sex)
-#' cont_table(employment, education, sex, pond = weights)
+#' cont_table(employment, education, sex, weights = weights)
 #' cont_table(employment, education, sex) %>% conditional(sex)
 #' cont_table(wages, wage, size)
 #' cont_table(wages, wage, size) %>% joint
@@ -54,27 +54,27 @@
 #' cont_table(wages, wage, size) %>% marginal(size)
 #' cont_table(wages, wage, size) %>% conditional(size) %>% mean
 #' 
-cont_table <- function(data, y1, y2, pond = NULL,
-                       total = TRUE,
+cont_table <- function(data, y1, y2, weights = NULL,
+                       total = FALSE,
                        first1 = NULL, last1 = NULL, inflate1 = NULL,
                        first2 = NULL, last2 = NULL, inflate2 = NULL){
-    pond_lgc <- deparse(substitute(pond)) != "NULL"
+    wgts_lgc <- deparse(substitute(weights)) != "NULL"
     y1_name <- deparse(substitute(y1))
     y2_name <- deparse(substitute(y2))
-    if (! pond_lgc) ct <- data %>% group_by({{ y1 }}, {{ y2 }}) %>%
-                        summarise(eff = n()) %>% ungroup
+    if (! wgts_lgc) ct <- data %>% group_by({{ y1 }}, {{ y2 }}) %>%
+                        summarise(n = n()) %>% ungroup
     else  ct <- data %>% group_by({{ y1 }}, {{ y2 }}) %>%
-              summarise(eff = sum({{ pond }})) %>% ungroup
+              summarise(n = sum({{ weights }})) %>% ungroup
 #    if (na.rm) ct <- na.omit(ct)
     ct <- ct %>% mutate_if(is.factor, as.character)
     if (total){
         mg_1 <- ct %>% group_by({{ y1 }}) %>%
-            summarise(eff = sum(eff)) %>%
+            summarise(n = sum(n)) %>%
             bind_cols("{{ y2 }}" := NA)
         mg_2 <- ct %>% group_by({{ y2 }}) %>%
-            summarise(eff = sum(eff)) %>%
+            summarise(n = sum(n)) %>%
             bind_cols("{{ y1 }}" := NA)
-        mg_tot <- summarise(mg_1, eff = sum(eff)) %>%
+        mg_tot <- summarise(mg_1, n = sum(n)) %>%
             bind_cols("{{ y2 }}" := NA,
                       "{{ y1 }}" := NA)
         ct <- bind_rows(ct, mg_1, mg_2, mg_tot)
@@ -198,7 +198,7 @@ total.omit <- function(x) x[ ! (is.na(x[[1]]) | is.na(x[[2]])), ]
 #' @rdname cont_table
 #' @export
 joint <- function(x)
-    x %>% total.omit %>% mutate(eff = eff / sum(eff)) %>% rename(f = eff)
+    x %>% total.omit %>% mutate(n = n / sum(n)) %>% rename(f = n)
 
 #' @rdname cont_table
 #' @export
@@ -220,7 +220,7 @@ conditional <- function(x, y = NULL){
     }
     cond_name <- setdiff(names(x)[1:2], y_name)
     x <- x %>% total.omit %>% group_by(!! as.symbol(cond_name)) %>%
-        mutate(eff = eff / sum(eff)) %>% ungroup %>% rename(f = eff)
+        mutate(n = n / sum(n)) %>% ungroup %>% rename(f = n)
     structure(x, class = c("cont_table", class(x)), y = y_name, limits = limits)
 }
 
@@ -228,7 +228,7 @@ conditional <- function(x, y = NULL){
 #' @export
 marginal <- function(x, y = NULL){
     limits <- attr(x, "limits")
-    N <- x %>% total.omit %>% summarise(N = sum(eff)) %>% pull(N)
+    N <- x %>% total.omit %>% summarise(N = sum(n)) %>% pull(N)
     y_name <- deparse(substitute(y))
     if (y_name == "NULL") y_name <- NA
     if (is.na(y_name)) stop("the variable should be indicated")
@@ -246,7 +246,7 @@ marginal <- function(x, y = NULL){
     # put the classes in the right order
     y_ord <- tibble(unique(na.omit(x[[y_name]]))) %>% set_names(y_name)
     x <- x %>% total.omit %>% group_by(!! as.symbol(y_name)) %>%
-        summarise(f = sum(eff)) %>% mutate(f = f / sum(f))
+        summarise(f = sum(n)) %>% mutate(f = f / sum(f))
     x <- y_ord %>% left_join(x, by = y_name)
     structure(x, class = c("cont_table", class(x)), y = y_name, limits = limits)
 }
@@ -262,10 +262,12 @@ var_decomp <- function(x, y){
     m_x <- x %>% conditional(y) %>% mean
     s2_x <- x %>% conditional(y) %>% variance
     f_y <- x %>% marginal(cond)
-    val_y <- x %>% cls2val(cond_pos)
+    val_y <- x %>% cls2val(y = cond_pos)
     names(m_x)[2] <- "mean"#paste("mean", var_name, sep = "_")
     names(s2_x)[2] <- "var"#paste("var", var_name, sep = "_")
-    x <- val_y %>% left_join(f_y, by = cond) %>% left_join(m_x, by = cond) %>% left_join(s2_x, by = cond)
+    x <- val_y %>% left_join(f_y, by = cond) %>%
+        left_join(m_x, by = cond) %>%
+        left_join(s2_x, by = cond)
     structure(x, class = c("var_decomp", class(x)))
 }
 

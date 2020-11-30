@@ -4,13 +4,14 @@ Date: 2020-11-23
 Title: Tools for descriptive statistics
 Author: Yves Croissant <yves.croissant@univ-reunion.fr>
 Maintainer: Yves Croissant <yves.croissant@univ-reunion.fr>
-Depends: R (>= 4.0.0), dplyr, tidyr
-Imports: rlang, purrr
-Suggests: ggplot2
+Depends: R (>= 4.0.0), dplyr
+Imports: rlang, purrr, tidyr
+Suggests: knitr, ggplot2
 Description: This package provide functions to compute descriptive statistics. More specifically numerical series available only as classes are supported.
 Encoding: UTF-8
 License: GPL (>=2)
-URL: http://www.r-project.org
+URL: https://www.r-project.org
+VignetteBuilder: knitr
 RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
 LazyData: true

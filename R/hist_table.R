@@ -15,6 +15,8 @@
 #'     the variable that should be returned ; `x` for the center of
 #'     the class, `l` and `u` for the lower and upper limit of the
 #'     class, `a` for the range
+#' @param weights a series that contain the weights tant enables the
+#'     sample to mimic the population
 #' @param breaks a numerical vector of class limits
 #' @param xfirst a numeric indicating the value of the center of the
 #'     first class
@@ -43,9 +45,18 @@
 #' # a breaks argument is provided to reduce the number of classes
 #' wages %>% hist_table(wage, breaks = c(10, 20, 30, 40, 50))
 #' 
-hist_table <- function(data, x, cols = "n", vals = "x", breaks = NULL,
+hist_table <- function(data, x, cols = "n", vals = "x",
+                       weights = NULL, breaks = NULL,
                        xfirst = NULL, xlast = NULL, right = NULL,
                        total = FALSE, inflate = NULL){
+    mc <- match.call()
+    m <- match(c("data", "x", "cols", "weights", "total"), names(mc), 0)
+    mc <- mc[c(1, m)]
+    mc[[1]] <- as.name("freq_table")
+    mc$cols <- "n"
+    # check whether there are some weights, if so sum the weights,
+    # else count the observations
+    wgts_lgc <- deparse(substitute(weights)) != "NULL"
     if (is.null(xlast) & is.null(inflate)) inflate <- 1
     # check wether the computation of densities is required and if so
     # create a boolean and remove d from cols
@@ -93,7 +104,9 @@ hist_table <- function(data, x, cols = "n", vals = "x", breaks = NULL,
     else{
         if (! is.null(breaks)) data <- data %>% mutate("{{ x }}" := recut({{ x }}, breaks = breaks))
     }
-    res <- freq_table(data, {{ x }}, cols = cols, total = FALSE)
+    mc$data <- data
+    res <- eval(mc, parent.frame())
+#    res <- freq_table(data, {{ x }}, cols = cols, weights = weights, total = FALSE)
 
     if ((any(c("x", "a") %in% vals_vec)) | compute_densities){
         res <- res %>% mutate(x = cls2val({{ x }}, 0.5, xfirst = xfirst,

@@ -36,7 +36,7 @@ and not counts are not straightforward. Moreover, to our knowledge,
 value is not known at the individual level, but only the fact that
 this value belongs to a certain class. `descstat` is intended to
 provide user-friendly tools to perform these kind of operations. More
-specifically, three kind of tables can be constructed:
+specifically, three kind of tables can be constructed with `descstat`:
 
 - `freq_table` for frequency tables, suitable for factors or integer
   numerical series,
@@ -46,7 +46,7 @@ specifically, three kind of tables can be constructed:
 - `cont_table` for contingency tables of two series.
 
 These function are writen in the **tidyverse** style, which means that
-the pipe operator can be used and that the series can be provided
+the pipe operator can be used and that the series can be selected
 without quotes.
 
 ```{r }
@@ -61,7 +61,6 @@ of a categorical or an integer series. In `tidyverse`, this task can be
 performed using the `dplyr::count` function. For example, the `rgp`
 data set, which is an extract of the French cencus, contains the
 number of children in households:
-
 
 ```{r }
 rgp %>% count(children)
@@ -82,13 +81,12 @@ but it has several further arguments which can improve the results:
   
     - `n` for the count or absolute frequencies (the default),
     - `f` for the (relative) frequencies,
-    - `p` for the percentage (ie $f\times 100$).
-  
-  Using upper cases letters return the cummulative values
-
+    - `p` for the percentage (*ie* $f\times 100$),
+	- `N`, `F` and `P` returns the cummulative values of `n`, `f` and
+      `p`.
 - `total` a boolean, if `TRUE`, a total is returned,
 - `max` suitable for an integer series only, an integer which is the
-  maximum value presented in the frequency table, eg `max = 3` create
+  maximum value presented in the frequency table, *eg* `max = 3` create
   a last line which is `>=3`
   
 The following line use all the possible letters.
@@ -130,7 +128,7 @@ then passed to the `tbl_df` method:
 descstat:::format.freq_table
 ```
 The `pre_print` function should be used explicitely while using
-`knitr::kable`, as this function don't use any `format` method:
+`knitr::kable`, as this function doesn't use any `format` method:
 
 ```{r }
 rgp %>% freq_table(children, max = 3, total = TRUE) %>%
@@ -143,19 +141,19 @@ The most natural way to plot a frequency table with `ggplot` is to use
 `geom_col` (or `geom_bar` with `stat = 'identity'`).
 
 ```{r }
-cld <- rgp %>% freq_table(children, cols = "nf", max = 3, total = FALSE)
-cld %>% ggplot(aes(children, f)) + geom_col()
+cld <- rgp %>% freq_table(children, cols = "nf", max = 3)
+cld %>% ggplot(aes(children, f)) + geom_col(fill = "white", color = "black")
 ```
 
 To get more complicated graphics, a `pre_plot` method is provided,
 with a `plot` argument equal to `banner` or `cummulative`. With `plot =
-banner`,
+"banner"`,
 
 ```{r }
 cld %>% pre_plot("f", plot = "banner")
 ```
 
-`pre_plot` returns an `ypos` series which indicate the coordinate
+`pre_plot` returns an `ypos` series which indicates the coordinate
 where to write the label corresponding to the frequencies.
 
 ```{r }
@@ -163,7 +161,8 @@ bnp <- cld %>% pre_plot("f", plot = "banner") %>%
     ggplot(aes(x = 2, y = f, fill = factor(children))) +
     geom_col() +
     geom_text(aes(y = ypos, label = f)) +
-    scale_x_continuous(label = NULL)
+    scale_x_continuous(label = NULL) +
+    scale_fill_brewer(palette = "Set3")
 bnp
 ```
 
@@ -254,7 +253,7 @@ can be either:
 - outside the range of the series; in this case the lower bound of the
   first class and the upper bound of the last class are these values,
 - inside the range of the series; in this case the lower bound of the
-  first class is 0 and the upper bound of the last class is `Inf`. 
+  first class is `0` and the upper bound of the last class is `Inf`. 
 
 Moreover, as for `freq_table`, the `cols` argument enables the
 computation of counts, frequencies and percentage and the cummulative
@@ -286,7 +285,7 @@ the first and the last class:
   `xfirst` argument,
 - a specific value for the last class can be indicated using the
   `xlast` argument,
-- the width of the last class (if it is open on infinity on the right)
+- the width of the last class (if it is opened on infinity on the right)
   can be set as a multiple of the before last class using the
   `inflate` argument. 
 
@@ -325,12 +324,12 @@ wages %>% hist_table(size, vals = "xlua", breaks = c(20, 100, 250), inflate = 2)
 
 `hist_table` internally calls the function `cls2val` which turns the
 classes into values of the variable. Its main argument is a factor (or
-a character) containing classes of numerical values, ie a string of
+a character) containing classes of numerical values, *ie* a string of
 the form `[a,b)` or `(a,b]` where `a` and `b` are respectively the
 lower and the upper values of the classes. In the first case, the
-class is closed on the left (`a` is included) and open on the right
-(`b` is not included) as for the second case, the class is open on the
-left and closed on the right. This is the notation used when the
+class is closed on the left (`a` is included) and opened on the right
+(`b` is not included) as for the second case, the class is opened on
+the left and closed on the right. This is the notation used when the
 `base::cut` function is used to transform a numerical value to a
 class, using a vector of breaks.
 
@@ -341,7 +340,7 @@ padova %>% pull(price) %>%
 ```
 
 Note the use of the `right` argument so that the classes are closed on
-the left and open on the right. 
+the left and opened on the right. 
 
 
 `descstat::recut` can be used to reduce the number of classes, by
@@ -354,9 +353,10 @@ wages2 <- wages %>% mutate(wage = recut(wage, c(10, 20, 50)))
 wages2 %>% pull(wage) %>% levels
 ```
 
-The `cls2val` function takes as arguments a class series, a `pos`
-argument and the three arguments `xfirst`, `xlast` and `inflate`
-previously described. `pos` is a numerical value between 0 and 1:
+The `cls2val` function takes as arguments a series containing a
+numerical class, a `pos` argument and the three arguments `xfirst`,
+`xlast` and `inflate` previously described. `pos` is a numerical value
+between 0 and 1:
 
 - `pos = 0` returns the lower bound of the class,
 - `pos = 1` returns the upper bound of the class,
@@ -390,7 +390,7 @@ but not when only classes are observed. A `pre_plot` method is
 provided for `hist_table` objects, with the `plot` argument either
 equal to `histogram` (the default) or `freqpoly`. The resulting table
 contains columns called `x` and `y` and can be ploted using
-`geom_polygon` for an histogram and to `geom_line` for a frequency
+`geom_polygon` for an histogram and `geom_line` for a frequency
 polygon.
 
 ```{r }
@@ -405,10 +405,10 @@ wages %>% hist_table(wage, "d", breaks = c(10, 20, 30, 40, 50)) %>%
 ## Computing descriptive statistics
 
 Descriptive statistics can easily be computed applying functions to
-`hist_table` objects. The problem is that only a few of `base` or
-`stats` package of **R** functions are generic. For these, methods
-where written for `hist_table` objects, for the other ones, we had to
-create new functions.
+`hist_table` objects. The problem is that only a few statistical
+functions of the `base` and the `stats` packages of **R** are
+generic. For these, methods where written for `hist_table` objects,
+for the other ones, we had to create new functions.
 
 ```{r echo = FALSE}
 tribble(~ "base R", ~ descstat,
@@ -488,7 +488,7 @@ wages2 <- wages %>%
 wages2 %>% count(size, wage)
 ```
 
-To get a "wide" table, with the values of one of the two variable
+To get a "wide" table, with the values of one of the two variables
 being the columns, we can use `tidyr::pivot_wider`:
 
 
@@ -542,7 +542,7 @@ the `cont_table` function.
 
 A contingency table can be ploted using `geom_point`, with the size of
 the points proportional to the count of the cell. The `pre_plot`
-method replace classes by values.
+method replaces classes by values.
 
 ```{r }
 wages2 %>% cont_table(size, wage) %>% pre_plot %>%

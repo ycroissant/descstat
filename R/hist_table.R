@@ -105,6 +105,7 @@ hist_table <- function(data, x, cols = "n", vals = "x",
         if (! is.null(breaks)) data <- data %>% mutate("{{ x }}" := recut({{ x }}, breaks = breaks))
     }
     mc$data <- data
+    mc$cols <- cols
     res <- eval(mc, parent.frame())
 #    res <- freq_table(data, {{ x }}, cols = cols, weights = weights, total = FALSE)
 

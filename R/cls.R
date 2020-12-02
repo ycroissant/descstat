@@ -18,7 +18,7 @@
 #' @param xlast the center of the last class, if one wants to specifie
 #'     something different from the average of the lower and the upper
 #'     bonds
-#' @param inflate in the case where the upper bond is infinite and
+#' @param wlast in the case where the upper bond is infinite and
 #'     `xlast` is not provided, the upper bond of the last class is
 #'     set to the lower bond of the last class and the range of the
 #'     previous class times this coefficient (which default value is
@@ -46,16 +46,16 @@
 #' # xlast is provided (the center of the last class) and the upper
 #' # bond is adapted accordingly, which means 50 + (100 - 50) * 2 =
 #' # 150
-#' wgs %>% cls2val(1, inflate = 3) %>% tail
-#' # inflate is provided, so that the range of the last class is three
+#' wgs %>% cls2val(1, wlast = 3) %>% tail
+#' # wlast is provided, so that the range of the last class is three
 #' # times the range of the previous one
-cls2val <- function(x, pos = 0, xfirst = NULL, xlast = NULL, inflate = NULL, ...)
+cls2val <- function(x, pos = 0, xfirst = NULL, xlast = NULL, wlast = NULL, ...)
     UseMethod("cls2val")
 
 
 #' @rdname cls2val
 #' @export
-cls2val.character <- function(x, pos = 0, xfirst = NULL, xlast = NULL, inflate = NULL, ...){
+cls2val.character <- function(x, pos = 0, xfirst = NULL, xlast = NULL, wlast = NULL, ...){
     K <- length(x)
     ox <- x
     if (length(unique(x)) != K){
@@ -65,7 +65,7 @@ cls2val.character <- function(x, pos = 0, xfirst = NULL, xlast = NULL, inflate =
         K <- length(x)
     }
     cls <- x
-    if (! is.null(xlast) & ! is.null(inflate)) stop("only one of last or inflate should be set")
+    if (! is.null(xlast) & ! is.null(wlast)) stop("only one of last or wlast should be set")
     if (! is.numeric(pos)) stop("pos should be numeric")
     if (is.numeric(pos) & ! (pos >= 0 & pos <= 1)) stop("pos should be between 0 and 1")
     x <- x %>% as.character %>% strsplit(",")
@@ -90,9 +90,9 @@ cls2val.character <- function(x, pos = 0, xfirst = NULL, xlast = NULL, inflate =
     }
     else{
         if (is.infinite(xu[K])){
-            if (is.null(inflate)) inflate <- 1
-            if (is.infinite(inflate)) xu[K] <- Inf
-            else xu[K] <- xl[K] + inflate * (xl[K]- xl[K - 1])
+            if (is.null(wlast)) wlast <- 1
+            if (is.infinite(wlast)) xu[K] <- Inf
+            else xu[K] <- xl[K] + wlast * (xl[K]- xl[K - 1])
         }
     }
     xnum <- (1 - pos) * xl + pos * xu
@@ -103,12 +103,12 @@ cls2val.character <- function(x, pos = 0, xfirst = NULL, xlast = NULL, inflate =
 
 #' @rdname cls2val
 #' @export
-cls2val.factor <- function(x, pos = 0, xfirst = NULL, xlast = NULL, inflate = NULL, ...){
+cls2val.factor <- function(x, pos = 0, xfirst = NULL, xlast = NULL, wlast = NULL, ...){
     # drop unused levels ? 
     lev_x <- levels(x)
     cls_val <- tibble(x = lev_x,
                       x_center = cls2val(x = x, pos = pos, xfirst = xfirst,
-                                         xlast = xlast, inflate = inflate))
+                                         xlast = xlast, wlast = wlast))
     left_join(tibble(x = as.character(x)), cls_val, by = "x") %>% pull(x_center)
 }
 
@@ -157,7 +157,7 @@ recut <- function(x, breaks = NULL){
     # get the initial classes and computs the breaks
     init_cls <- x %>% unique %>% sort
     lbond <- cls2val(init_cls, 0L)
-    ubond <- cls2val(init_cls, 1L, inflate = Inf)
+    ubond <- cls2val(init_cls, 1L, wlast = Inf)
     cls_table <- tibble(x = init_cls, lbond, ubond) %>% arrange(lbond)
     init_bks <- sort(union(lbond, ubond))
     cls_table <- cls_table %>% mutate(center = cls2val(x, 0.5))
@@ -191,6 +191,6 @@ cls2val.cont_table <- function(x, pos = 0.5, ..., y = 1){
     x <- x %>% total.omit
     lim <- attr(x, "limits")[[y]]
     x_cls <- x[[y]]
-    x_val <- cls2val(x[[y]], pos = pos, xfirst = lim$first, xlast = lim$last, inflate = lim$inflate)
+    x_val <- cls2val(x[[y]], pos = pos, xfirst = lim$xfirst, xlast = lim$xlast, wlast = lim$wlast)
     tibble(cls = x_cls, val = x_val) %>% unique %>% set_names(c(nms_x, paste(nms_x, "val", sep = "_")))
 }

@@ -7,11 +7,11 @@
 \alias{cls2val.cont_table}
 \title{Convert class to values}
 \usage{
-cls2val(x, pos = 0, xfirst = NULL, xlast = NULL, inflate = NULL, ...)
+cls2val(x, pos = 0, xfirst = NULL, xlast = NULL, wlast = NULL, ...)
 
-\method{cls2val}{character}(x, pos = 0, xfirst = NULL, xlast = NULL, inflate = NULL, ...)
+\method{cls2val}{character}(x, pos = 0, xfirst = NULL, xlast = NULL, wlast = NULL, ...)
 
-\method{cls2val}{factor}(x, pos = 0, xfirst = NULL, xlast = NULL, inflate = NULL, ...)
+\method{cls2val}{factor}(x, pos = 0, xfirst = NULL, xlast = NULL, wlast = NULL, ...)
 
 \method{cls2val}{cont_table}(x, pos = 0.5, ..., y = 1)
 }
@@ -33,7 +33,7 @@ bonds}
 something different from the average of the lower and the upper
 bonds}
 
-\item{inflate}{in the case where the upper bond is infinite and
+\item{wlast}{in the case where the upper bond is infinite and
 \code{xlast} is not provided, the upper bond of the last class is
 set to the lower bond of the last class and the range of the
 previous class times this coefficient (which default value is
@@ -68,8 +68,8 @@ wgs \%>\% cls2val(1, xlast = 100) \%>\% tail
 # xlast is provided (the center of the last class) and the upper
 # bond is adapted accordingly, which means 50 + (100 - 50) * 2 =
 # 150
-wgs \%>\% cls2val(1, inflate = 3) \%>\% tail
-# inflate is provided, so that the range of the last class is three
+wgs \%>\% cls2val(1, wlast = 3) \%>\% tail
+# wlast is provided, so that the range of the last class is three
 # times the range of the previous one
 }
 \author{

@@ -23,12 +23,12 @@ cont_table(
   y2,
   weights = NULL,
   total = FALSE,
-  first1 = NULL,
-  last1 = NULL,
-  inflate1 = NULL,
-  first2 = NULL,
-  last2 = NULL,
-  inflate2 = NULL
+  xfirst1 = NULL,
+  xlast1 = NULL,
+  wlast1 = NULL,
+  xfirst2 = NULL,
+  xlast2 = NULL,
+  wlast2 = NULL
 )
 
 \method{mean}{cont_table}(x, ..., drop = TRUE)
@@ -70,17 +70,17 @@ mimic the population}
 \item{total}{if \code{TRUE} (the defaut values), a total is added to the
 table}
 
-\item{first1}{the center of the first class for the first variable}
+\item{xfirst1}{the center of the first class for the first variable}
 
-\item{last1}{the center of the last class for the first variable}
+\item{xlast1}{the center of the last class for the first variable}
 
-\item{inflate1}{the width of the last class for the first variable}
+\item{wlast1}{the width of the last class for the first variable}
 
-\item{first2}{the center of the first class for the second variable}
+\item{xfirst2}{the center of the first class for the second variable}
 
-\item{last2}{the center of the last class for the second variable}
+\item{xlast2}{the center of the last class for the second variable}
 
-\item{inflate2}{the width of the last class for the second variable}
+\item{wlast2}{the width of the last class for the second variable}
 
 \item{x, object}{a tibble containing the contingency table}
 

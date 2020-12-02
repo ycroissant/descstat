@@ -25,7 +25,7 @@
 #'     (`right = TRUE`) or open (`right = FALSE`) on the right
 #' @param total a logical indicating whether the total should be
 #'     returned
-#' @param inflate if `xlast` is not set, the width of the last class
+#' @param wlast if `xlast` is not set, the width of the last class
 #'     is set to the one of the second to last width times this
 #'     parameter
 #' @return a tibble containing the specified values of `vals` and
@@ -48,16 +48,16 @@
 hist_table <- function(data, x, cols = "n", vals = "x",
                        weights = NULL, breaks = NULL,
                        xfirst = NULL, xlast = NULL, right = NULL,
-                       total = FALSE, inflate = NULL){
+                       total = FALSE, wlast = NULL){
     mc <- match.call()
-    m <- match(c("data", "x", "cols", "weights", "total"), names(mc), 0)
+    m <- match(c("data", "x", "cols", "weights"), names(mc), 0)
     mc <- mc[c(1, m)]
     mc[[1]] <- as.name("freq_table")
     mc$cols <- "n"
     # check whether there are some weights, if so sum the weights,
     # else count the observations
     wgts_lgc <- deparse(substitute(weights)) != "NULL"
-    if (is.null(xlast) & is.null(inflate)) inflate <- 1
+    if (is.null(xlast) & is.null(wlast)) wlast <- 1
     # check wether the computation of densities is required and if so
     # create a boolean and remove d from cols
     cols_vec <- strsplit(cols, "")[[1]]
@@ -111,12 +111,12 @@ hist_table <- function(data, x, cols = "n", vals = "x",
 
     if ((any(c("x", "a") %in% vals_vec)) | compute_densities){
         res <- res %>% mutate(x = cls2val({{ x }}, 0.5, xfirst = xfirst,
-                                          xlast = xlast, inflate = inflate))
+                                          xlast = xlast, wlast = wlast))
     }
     if ((any(c("l", "a") %in% vals_vec)) | compute_densities)
         res <- res %>% mutate(l = cls2val({{ x }}, 0))
     if ((any(c("u", "a") %in% vals_vec)) | compute_densities)
-        res <- res %>% mutate(u = cls2val({{ x }}, 1, inflate = inflate, xlast = xlast))
+        res <- res %>% mutate(u = cls2val({{ x }}, 1, wlast = wlast, xlast = xlast))
     if (("a" %in% vals_vec) | compute_densities){
         NR <- nrow(res)
         xlast_inf <- res %>% slice(NR) %>% pull(u) %>% is.infinite
@@ -142,6 +142,7 @@ hist_table <- function(data, x, cols = "n", vals = "x",
                       names(res)) %>% na.omit %>% sort
     vals_pos <- match(c("x", "l", "a", "u"), names(res)) %>% na.omit %>% sort
     res <- res %>% select({{ x }}, all_of(c(vals_pos, cols_pos)))
+    # TODO how to add a total in an hist_table
     structure(res, class = c("hist_table", class(res)))
 }
     
@@ -266,15 +267,15 @@ gini <- function(x){
 }
 
 
-compute_bonds <- function(x, xlast = NULL, xfirst = NULL, inflate = NULL){
-    xu <- cls2val(x, 1L, xlast = xlast, xfirst = xfirst, inflate = inflate)
-    xl <- cls2val(x, 0L, xlast = xlast, xfirst = xfirst, inflate = inflate)
+compute_bonds <- function(x, xlast = NULL, xfirst = NULL, wlast = NULL){
+    xu <- cls2val(x, 1L, xlast = xlast, xfirst = xfirst, wlast = wlast)
+    xl <- cls2val(x, 0L, xlast = xlast, xfirst = xfirst, wlast = wlast)
     tibble(x, xl, xu)
 }
 
-compute_widths <- function(x, xlast = NULL, xfirst = NULL, inflate = NULL){
-    xu <- cls2val(x, 1L, xlast = xlast, xfirst = xfirst, inflate = inflate)
-    xl <- cls2val(x, 0L, xlast = xlast, xfirst = xfirst, inflate = inflate)
+compute_widths <- function(x, xlast = NULL, xfirst = NULL, wlast = NULL){
+    xu <- cls2val(x, 1L, xlast = xlast, xfirst = xfirst, wlast = wlast)
+    xl <- cls2val(x, 0L, xlast = xlast, xfirst = xfirst, wlast = wlast)
     xu - xl
 }
 
@@ -300,11 +301,11 @@ compute_freq <- function(x){
     else pull(x, f)
 }
     
-compute_dens <- function(x, xlast = NULL, xfirst = NULL, inflate = NULL){
+compute_dens <- function(x, xlast = NULL, xfirst = NULL, wlast = NULL){
     if (! inherits(x, "hist_table")) stop("x should be an hist_table object")
     if (! "d" %in% names(x)){
         f <- compute_freq(x)
-        a <- compute_widths(x[[1]], xlast = xlast, xfirst = xfirst, inflate = NULL)
+        a <- compute_widths(x[[1]], xlast = xlast, xfirst = xfirst, wlast = NULL)
         d <- f /a
         d
     }

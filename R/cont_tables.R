@@ -23,12 +23,12 @@
 #'     mimic the population
 #' @param total if `TRUE` (the defaut values), a total is added to the
 #'     table
-#' @param first1 the center of the first class for the first variable
-#' @param last1 the center of the last class for the first variable
-#' @param inflate1 the width of the last class for the first variable
-#' @param first2 the center of the first class for the second variable
-#' @param last2 the center of the last class for the second variable
-#' @param inflate2 the width of the last class for the second variable
+#' @param xfirst1 the center of the first class for the first variable
+#' @param xlast1 the center of the last class for the first variable
+#' @param wlast1 the width of the last class for the first variable
+#' @param xfirst2 the center of the first class for the second variable
+#' @param xlast2 the center of the last class for the second variable
+#' @param wlast2 the width of the last class for the second variable
 #' @param drop if `TRUE`, the default, a numeric is returned,
 #'     otherwise the result is a tibble
 #' @param ... further arguments
@@ -56,8 +56,8 @@
 #' 
 cont_table <- function(data, y1, y2, weights = NULL,
                        total = FALSE,
-                       first1 = NULL, last1 = NULL, inflate1 = NULL,
-                       first2 = NULL, last2 = NULL, inflate2 = NULL){
+                       xfirst1 = NULL, xlast1 = NULL, wlast1 = NULL,
+                       xfirst2 = NULL, xlast2 = NULL, wlast2 = NULL){
     wgts_lgc <- deparse(substitute(weights)) != "NULL"
     y1_name <- deparse(substitute(y1))
     y2_name <- deparse(substitute(y2))
@@ -79,8 +79,8 @@ cont_table <- function(data, y1, y2, weights = NULL,
                       "{{ y1 }}" := NA)
         ct <- bind_rows(ct, mg_1, mg_2, mg_tot)
     }
-    limits = list(list(first = first1, last = last1, inflate = inflate1),
-                  list(first = first2, last = last2, inflate = inflate2))
+    limits = list(list(xfirst = xfirst1, xlast = xlast1, wlast = wlast1),
+                  list(xfirst = xfirst2, xlast = xlast2, wlast = wlast2))
     names(limits) <- c(y1_name, y2_name)
     structure(ct,
               class = c("cont_table", class(ct)),
@@ -96,9 +96,9 @@ fun.cont_table <- function(x, fun = weighted.mean, drop = TRUE, ...){
         y <- x %>% .[[y_name]] %>% unique %>% setdiff("Total")
         limits <- attr(x, "limits")[[y_name]]
         y_ctr <- cls2val(y, 0.5,
-                         xfirst = limits$first,
-                         xlast = limits$last,
-                         inflate = limits$inflate)
+                         xfirst = limits$xfirst,
+                         xlast = limits$xlast,
+                         wlast = limits$wlast)
         names(y_ctr) <- y
     }
     else y_name <- NULL
@@ -125,16 +125,16 @@ fun.cont_table <- function(x, fun = weighted.mean, drop = TRUE, ...){
             limits <- attr(x, "limits")
             y1 <- x %>% pull(1) %>% unique %>% setdiff("Total")
             y1_ctr <- cls2val(y1, 0.5,
-                              xfirst = limits[[1]]$first,
-                              xlast = limits[[1]]$last,
-                              inflate = limits[[1]]$inflate)
+                              xfirst = limits[[1]]$xfirst,
+                              xlast = limits[[1]]$xlast,
+                              wlast = limits[[1]]$wlast)
             names(y1_ctr) <- y1
             x[[1]] <- y1_ctr[x[[1]]]
             y2 <- x %>% pull(2) %>% unique %>% setdiff("Total")
             y2_ctr <- cls2val(y2, 0.5,
-                              xfirst = limits[[2]]$first,
-                              xlast = limits[[2]]$last,
-                              inflate = limits[[2]]$inflate)
+                              xfirst = limits[[2]]$xfirst,
+                              xlast = limits[[2]]$xlast,
+                              wlast = limits[[2]]$wlast)
             names(y2_ctr) <- y2
             x[[2]] <- y2_ctr[x[[2]]]
             x <- x %>% summarise(stat1 = fun(!! as.symbol(names(x)[1]), w = f, ...),
@@ -169,12 +169,12 @@ covariance.cont_table <- function(x, drop = TRUE, ...){
     means <- x %>% mean
     vals_1 <- tibble(unique(x[[1]])) %>% set_names(names(x)[1])
     vals_1$val1 <- cls2val(vals_1[[1]], 0.5,
-                           xfirst  = limits[[1]]$first,
-                           xlast = limits[[1]]$last)
+                           xfirst  = limits[[1]]$xfirst,
+                           xlast = limits[[1]]$xlast)
     vals_2 <- tibble(unique(x[[2]])) %>% set_names(names(x)[2])
     vals_2$val2 <- cls2val(vals_2[[1]], 0.5,
-                           xfirst  = limits[[2]]$first,
-                           xlast = limits[[2]]$last)
+                           xfirst  = limits[[2]]$xfirst,
+                           xlast = limits[[2]]$xlast)
     x <- x %>%
         left_join(vals_1, by = names(vals_1)[1]) %>%
         left_join(vals_2, by = names(vals_2)[1])

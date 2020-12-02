@@ -41,7 +41,7 @@
 #' freq_table(employment, activity, "fF", weights = weights)
 #' freq_table(rgp, children, "npNP")
 #' freq_table(rgp, children, "npNP", max = 5)
-freq_table <- function(data, x, cols = "n", weights = NULL, na.rm = TRUE, total = FALSE, max = NA){
+freq_table <- function(data, x, cols = "n", weights = NULL, na.rm = FALSE, total = FALSE, max = NA){
     # check whether there are some weights, if so sum the weights,
     # else count the observations
     wgts_lgc <- deparse(substitute(weights)) != "NULL"
@@ -61,7 +61,7 @@ freq_table <- function(data, x, cols = "n", weights = NULL, na.rm = TRUE, total 
             stop("the max argument is only suitable for numerical series")
         ct1 <- filter(ct, {{ x }} < max)
         ct2 <- filter(ct, {{ x }} >= max) %>%
-            summarise(n = sum(n), "{{ x }}" := max )
+            summarise(n = sum(n), "{{ x }}" := Inf )
         ct <- ct1 %>% bind_rows(ct2)
     }
     # remove na values if required
@@ -78,11 +78,12 @@ freq_table <- function(data, x, cols = "n", weights = NULL, na.rm = TRUE, total 
     }
     if (total){
         lowcaps <- select(ct, matches("^[nfp]{1}$", ignore.case = FALSE))
-        total_low <- lowcaps %>% summarise_all(sum) %>% mutate("{{ x }}" := ifelse(x_is_num, Inf, "Total"))
+        total_low <- lowcaps %>% summarise_all(sum) %>%
+            mutate("{{ x }}" := ifelse(x_is_num, NA, "Total"))
         ct <- ct %>% bind_rows(total_low)
     }
     ct <- select(ct, {{ x }}, !! cols)
-    structure(ct, class = c("freq_table", class(ct)), max = max, total = total)
+    structure(ct, class = c("freq_table", class(ct)))
 }
 
 #' @rdname freq_table
@@ -96,12 +97,13 @@ format.freq_table <- function(x, ..., n = NULL, width = NULL, n_extra = NULL){
 #' @rdname freq_table
 #' @export
 pre_print.freq_table <- function(x){
-    max <- attr(x, "max")
-    total <- attr(x, "total")
-    nr <- nrow(x)
-    if (total | ! is.na(max)) x[[1]] <- as.character(x[[1]])
-    if (total) x[[1]][nr] <- "Total"
-    if (! is.na(max)) x[[1]][nr - total] <- paste(">= ", max, sep ="")
+    a_Inf <- which(is.infinite(x[[1]]))
+    a_NA <- which(is.na(x[[1]]))
+    if (length(a_Inf)){
+        last_value <- x[[1]][a_Inf -1]
+        x[[1]][a_Inf] <- paste(">=", last_value + 1, sep = "")
+    }
+    if (length(a_NA)) x[[1]][a_NA] <- "Total"
     x
 }
 

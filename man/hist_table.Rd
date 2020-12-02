@@ -15,7 +15,7 @@ hist_table(
   xlast = NULL,
   right = NULL,
   total = FALSE,
-  inflate = NULL
+  wlast = NULL
 )
 }
 \arguments{
@@ -50,7 +50,7 @@ first class}
 \item{total}{a logical indicating whether the total should be
 returned}
 
-\item{inflate}{if \code{xlast} is not set, the width of the last class
+\item{wlast}{if \code{xlast} is not set, the width of the last class
 is set to the one of the second to last width times this
 parameter}
 }

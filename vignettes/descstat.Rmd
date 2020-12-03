@@ -142,7 +142,7 @@ The most natural way to plot a frequency table with `ggplot` is to use
 
 ```{r }
 cld <- rgp %>% freq_table(children, cols = "nf", max = 3)
-cld %>% ggplot(aes(children, f)) + geom_col(fill = "white", color = "black")
+cld %>% pre_print %>% ggplot(aes(children, f)) + geom_col(fill = "white", color = "black")
 ```
 
 To get more complicated graphics, a `pre_plot` method is provided,

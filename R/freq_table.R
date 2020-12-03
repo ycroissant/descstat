@@ -102,7 +102,6 @@ pre_print.freq_table <- function(x){
         max_pos <- which(dec_part == 0.5)
         if (length(max_pos)){
             max_val <- x[[1]][max_pos]
-            print(max_val)
             x[[1]][max_pos] <- paste(">=", floor(max_val), sep = "")
             x[[1]] <- factor(x[[1]], levels = x[[1]])
         }

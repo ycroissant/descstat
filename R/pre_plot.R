@@ -22,6 +22,7 @@
 #' @param ... further arguments
 #' @return a tibble
 #' @importFrom dplyr desc as_tibble transmute
+#' @importFrom purrr map_df
 #' @export
 #' @author Yves Croissant
 #' @examples

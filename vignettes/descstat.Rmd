@@ -150,15 +150,15 @@ with a `plot` argument equal to `banner` or `cummulative`. With `plot =
 "banner"`,
 
 ```{r }
-cld %>% pre_plot("f", plot = "banner")
+cld %>% pre_print %>% pre_plot("f", plot = "banner")
 ```
 
 `pre_plot` returns an `ypos` series which indicates the coordinate
 where to write the label corresponding to the frequencies.
 
 ```{r }
-bnp <- cld %>% pre_plot("f", plot = "banner") %>%
-    ggplot(aes(x = 2, y = f, fill = factor(children))) +
+bnp <- cld %>% pre_print %>% pre_plot("f", plot = "banner") %>%
+    ggplot(aes(x = 2, y = f, fill = children)) +
     geom_col() +
     geom_text(aes(y = ypos, label = f)) +
     scale_x_continuous(label = NULL) +
@@ -185,7 +185,7 @@ cumulative:
 
 
 ```{r }
-cld <- rgp %>% freq_table(children, "F", max = 5, total = FALSE)
+cld <- rgp %>% freq_table(children, "F", max = 5, total = TRUE)
 cld %>% pre_plot(plot = "cumulative") %>% print(n = 5)
 ```
 this returns the 4 series which have the names of the aesthetics that

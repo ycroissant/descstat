@@ -104,6 +104,7 @@ pre_print.freq_table <- function(x){
             max_val <- x[[1]][max_pos]
             print(max_val)
             x[[1]][max_pos] <- paste(">=", floor(max_val), sep = "")
+            x[[1]] <- factor(x[[1]], levels = x[[1]])
         }
     }
     a_NA <- which(is.na(x[[1]]))

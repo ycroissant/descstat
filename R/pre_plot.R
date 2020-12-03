@@ -109,7 +109,7 @@ pre_plot.freq_table <- function(x, y = NULL, plot = c("banner", "cumulative"), .
         x <- x %>% total.omit %>%
             mutate(ypos = cumsum(!! as.symbol(y)) - 0.5 * !! as.symbol(y)) %>% 
             map_df(rev)
-#        x[[1]] <- factor(x[[1]], levels = x[[1]])
+        x[[1]] <- factor(x[[1]], levels = x[[1]])
     }
     if (plot == "cumulative"){
         if (! "F" %in% names(x)) stop("the frequency table should contain F")

@@ -287,7 +287,7 @@ the first and the last class:
   `xlast` argument,
 - the width of the last class (if it is opened on infinity on the right)
   can be set as a multiple of the before last class using the
-  `inflate` argument. 
+  `wlast` argument. 
 
 To set the center of the first class to `10` (and not to `10.5`), we
 can use:
@@ -305,7 +305,7 @@ wages %>% hist_table(size, breaks = c(20, 100, 250), xlast = 400)
 ```
 
 ```{r }
-wages %>% hist_table(size, breaks = c(20, 100, 250), inflate = 2)
+wages %>% hist_table(size, breaks = c(20, 100, 250), wlast = 2)
 ```
 
 other values of the variable can be included in the table using the
@@ -317,7 +317,7 @@ letters:
 - `a` for the width of the class.
 
 ```{r }
-wages %>% hist_table(size, vals = "xlua", breaks = c(20, 100, 250), inflate = 2)
+wages %>% hist_table(size, vals = "xlua", breaks = c(20, 100, 250), wlast = 2)
 ```
 
 ## Under the hood: converting classes to values
@@ -355,7 +355,7 @@ wages2 %>% pull(wage) %>% levels
 
 The `cls2val` function takes as arguments a series containing a
 numerical class, a `pos` argument and the three arguments `xfirst`,
-`xlast` and `inflate` previously described. `pos` is a numerical value
+`xlast` and `wlast` previously described. `pos` is a numerical value
 between 0 and 1:
 
 - `pos = 0` returns the lower bound of the class,
@@ -533,7 +533,7 @@ employment %>% cont_table(age, sex, weights = weights, total = TRUE)
 ```
 
 as for `hist_table`, central values for the first and the last class
-can be set using arguments `first#`, `last#` and `inflate#`, where `#`
+can be set using arguments `xfirst#`, `xlast#` and `wlast#`, where `#`
 is equal to 1 or 2 for the first and the second variable indicated in
 the `cont_table` function.
 

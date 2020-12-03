@@ -193,7 +193,8 @@ correlation.cont_table <- function(x, drop = TRUE, ...){
 
 
 #total.omit <- function(x) x[ x[[1]] != "Total" & x[[2]] != "Total", ]
-total.omit <- function(x) x[ ! (is.na(x[[1]]) | is.na(x[[2]])), ]
+total.omit <- function(x) x[ ! (is.na(x[[1]]) | is.na(x[[2]])) &
+                             (x[[1]] != "Total") & (x[[2]] != "Total"), ]
 
 #' @rdname cont_table
 #' @export

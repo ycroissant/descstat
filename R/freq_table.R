@@ -61,7 +61,7 @@ freq_table <- function(data, x, cols = "n", weights = NULL, na.rm = FALSE, total
             stop("the max argument is only suitable for numerical series")
         ct1 <- filter(ct, {{ x }} < max)
         ct2 <- filter(ct, {{ x }} >= max) %>%
-            summarise(n = sum(n), "{{ x }}" := Inf )
+            summarise(n = sum(n), "{{ x }}" := max + 0.5 )
         ct <- ct1 %>% bind_rows(ct2)
     }
     # remove na values if required
@@ -79,7 +79,7 @@ freq_table <- function(data, x, cols = "n", weights = NULL, na.rm = FALSE, total
     if (total){
         lowcaps <- select(ct, matches("^[nfp]{1}$", ignore.case = FALSE))
         total_low <- lowcaps %>% summarise_all(sum) %>%
-            mutate("{{ x }}" := ifelse(x_is_num, NA, "Total"))
+            mutate("{{ x }}" :=  NA)#ifelse(x_is_num, NA, "Total"))
         ct <- ct %>% bind_rows(total_low)
     }
     ct <- select(ct, {{ x }}, !! cols)
@@ -97,12 +97,16 @@ format.freq_table <- function(x, ..., n = NULL, width = NULL, n_extra = NULL){
 #' @rdname freq_table
 #' @export
 pre_print.freq_table <- function(x){
-    a_Inf <- which(is.infinite(x[[1]]))
-    a_NA <- which(is.na(x[[1]]))
-    if (length(a_Inf)){
-        last_value <- x[[1]][a_Inf -1]
-        x[[1]][a_Inf] <- paste(">=", last_value + 1, sep = "")
+    if (is.numeric(x[[1]])){
+        dec_part <- x[[1]] %% floor(x[[1]])
+        max_pos <- which(dec_part == 0.5)
+        if (length(max_pos)){
+            max_val <- x[[1]][max_pos]
+            print(max_val)
+            x[[1]][max_pos] <- paste(">=", floor(max_val), sep = "")
+        }
     }
+    a_NA <- which(is.na(x[[1]]))
     if (length(a_NA)) x[[1]][a_NA] <- "Total"
     x
 }

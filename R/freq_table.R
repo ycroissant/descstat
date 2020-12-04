@@ -72,9 +72,9 @@ freq_table <- function(data, x, cols = "n", weights = NULL, na.rm = FALSE, total
     if (any(c("p", "P") %in% cols)) ct <- ct %>% mutate(ct, p = n / sum(n) * 100)
     # compute the cummulative distribution if required
     if (any(c("N", "F", "P") %in% cols)){
-        if ("N" %in% cols) ct <- ct %>% mutate(ct, N = cumsum(n))
-        if ("F" %in% cols) ct <- ct %>% mutate(ct, F = cumsum(f))
-        if ("P" %in% cols) ct <- ct %>% mutate(ct, P = cumsum(p))
+        if ("N" %in% cols) ct <- ct %>% mutate(ct, N = cumsum(.data$n))
+        if ("F" %in% cols) ct <- ct %>% mutate(ct, F = cumsum(.data$f))
+        if ("P" %in% cols) ct <- ct %>% mutate(ct, P = cumsum(.data$p))
     }
     if (total){
         lowcaps <- select(ct, matches("^[nfp]{1}$", ignore.case = FALSE))

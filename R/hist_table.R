@@ -119,17 +119,17 @@ hist_table <- function(data, x, cols = "n", vals = "x",
         res <- res %>% mutate(u = cls2val({{ x }}, 1, wlast = wlast, xlast = xlast))
     if (("a" %in% vals_vec) | compute_densities){
         NR <- nrow(res)
-        xlast_inf <- res %>% slice(NR) %>% pull(u) %>% is.infinite
+        xlast_inf <- res %>% slice(NR) %>% pull(.data$u) %>% is.infinite
         if (xlast_inf){
-            res <- res %>% slice(NR) %>% mutate(u2 = l + 2 * (x - l)) %>% pull(u2)
-            res <- res %>% mutate(u2 = ifelse(is.infinite(u), u2, u))
-            res <- res %>% mutate(a = u2 - l) %>% select(- u2)
+            res <- res %>% slice(NR) %>% mutate(u2 = .data$l + 2 * (x - .data$l)) %>% pull(.data$u2)
+            res <- res %>% mutate(u2 = ifelse(is.infinite(.data$u), .data$u2, .data$u))
+            res <- res %>% mutate(a = .data$u2 - .data$l) %>% select(- .data$u2)
         }
-        else res <- res %>% mutate(a = u - l)
-        if (! "l" %in% vals_vec) res <- res %>% select(- l)
-        if (! "u" %in% vals_vec) res <- res %>% select(- u)
-        if (compute_densities) res <- res %>% mutate(d = n / sum(n) / a)
-        if (! "a" %in% vals_vec) res <- res %>% select(- a)
+        else res <- res %>% mutate(a = .data$u - .data$l)
+        if (! "l" %in% vals_vec) res <- res %>% select(- .data$l)
+        if (! "u" %in% vals_vec) res <- res %>% select(- .data$u)
+        if (compute_densities) res <- res %>% mutate(d = n / sum(n) / .data$a)
+        if (! "a" %in% vals_vec) res <- res %>% select(- .data$a)
     }
     if (compute_masses | compute_cummasses){
         res <- res %>% mutate(m = n * x,
@@ -151,7 +151,6 @@ hist_table <- function(data, x, cols = "n", vals = "x",
         total_low <- lowcaps %>% summarise_all(sum) %>%
             mutate("{{ x }}" :=  factor("Total", levels = levelsx))#ifelse(x_is_num, NA, "Total"))
         res <- res %>% bind_rows(total_low)
-        print(total_low)
     }
 
     structure(res, class = c("hist_table", class(res)))
@@ -186,7 +185,10 @@ hist_table <- function(data, x, cols = "n", vals = "x",
 mean.hist_table <- function(x, ...){
     xfirst <- x$x[1]
     xlast <- rev(x$x)[1]
-    if (! "f" %in% names(x)) x <- x %>% mutate(f = compute_freq(.))
+    if (! "f" %in% names(x)){
+        cf <- compute_freq(x)
+        x <- x %>% mutate(f = cf)
+    }
     mean(x[[1]], x$f, xlast = xlast, xfirst = xfirst)
 }
 
@@ -194,7 +196,10 @@ mean.hist_table <- function(x, ...){
 #' @export
 variance.hist_table <- function(x, ...){
     x <- x %>% rename(cls = 1)
-    if (! "f" %in% names(x)) x <- x %>% mutate(f = compute_freq(.))
+    if (! "f" %in% names(x)){
+        cf <- compute_freq(x)
+        x <- x %>% mutate(f = cf)
+    }
     xfirst <- (x$x)[1]
     xlast <- rev(x$x)[1]
     variance(x[[1]], x$f, xlast = xlast, xfirst = xfirst)
@@ -211,7 +216,8 @@ madev.hist_table <- function(x, center = c("median", "mean"), ...){
     center <- match.arg(center)
     xfirst <- (x$x)[1]
     xlast <- rev(x$x)[1]
-    if (! "f" %in% names(x)) x <- x %>% mutate(f = compute_freq(.))
+    
+    if (! "f" %in% names(x)) x <- x %>% mutate(f = compute_freq(x))
     madev(x[[1]], w = x$f, center = center, xlast = xlast, xfirst = xfirst)
 }
 
@@ -230,15 +236,18 @@ modval.hist_table <- function(x, ...){
 #' @export
 quantile.hist_table <- function(x, y = c("value", "mass"), probs = c(0.25, 0.5, 0.75), ...){
     y <- match.arg(y)
-    if (! "f" %in% names(x)) x <- x %>% mutate(f = compute_freq(.))
+    if (! "f" %in% names(x)){
+        cf <- compute_freq(x)
+        x <- x %>% mutate(f = cf)
+    }
     if (y == "mass"){
         if (! "m" %in% names(x)){
-            x <- x %>% mutate(m = f * x,
-                              m = m / sum(m))
+            x <- x %>% mutate(m = .data$f * x,
+                              m = .data$m / sum(.data$m))
         }
-        y <- x %>% pull(m)
+        y <- x %>% pull(.data$m)
     }
-    else y <- x %>% pull(f)
+    else y <- x %>% pull(.data$f)
     xfirst <- pull(x, x)[1]
     xlast <- rev(pull(x, x))[1]
     quantile(as.character(x[[1]]), y, probs = probs, xlast = xlast, xfirst = xfirst)
@@ -265,16 +274,17 @@ medial.hist_table <- function(x, ...){
 gini <- function(x){
     if (! inherits(x, "hist_table")) stop("x should be a hist_table object")
     if (any(! c("F", "M") %in% names(x))){
-        x <- x %>% mutate(f = compute_freq(.))
-        if (! "F" %in% names(x)) x <- x %>% mutate(F = cumsum(f))
-        if (! "M" %in% names(x)) x <- x %>% mutate(m = f * x,
-                                                   m = m / sum(m),
-                                                   M = cumsum(m))
+        cf <- compute_freq(x)
+        x <- x %>% mutate(f = cf)
+        if (! "F" %in% names(x)) x <- x %>% mutate(F = cumsum(.data$f))
+        if (! "M" %in% names(x)) x <- x %>% mutate(m = .data$f * x,
+                                                   m = .data$m / sum(.data$m),
+                                                   M = cumsum(.data$m))
     }
     x %>% add_row(F = 0, M = 0, .before = 0) %>%
-        mutate(tz = (F - lag(F)) * (lag(M) + M) / 2) %>%
-        summarise(g = 2 * (0.5 - sum(tz, na.rm = TRUE))) %>%
-        pull(g)    
+        mutate(tz = (F - lag(F)) * (lag(.data$M) + .data$M) / 2) %>%
+        summarise(g = 2 * (0.5 - sum(.data$tz, na.rm = TRUE))) %>%
+        pull(.data$g)    
 }
 
 

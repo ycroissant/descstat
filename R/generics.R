@@ -108,7 +108,7 @@ quantile.character <- function(x, w, probs = c(0.25, 0.50, 0.75), xlast = NULL, 
     if (is.null(x)) stop("a character vector should be provided")
     W <- cumsum(w)
     get_quant <- function(aprob){
-        id <- (W > aprob) %>% which %>% .[1]
+        id <- which(W > aprob)[1]
         if (id == 1L) Fm1 <- 0
         else Fm1 <- W[id - 1]
         F <- W[id]

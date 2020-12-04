@@ -26,7 +26,7 @@ options(
 otheme <- ggplot2::theme_set(ggplot2::theme_minimal())
 ```
 
-**R** offer many tools to analyse the univariate or bivariate
+**R** offers many tools to analyse the univariate or bivariate
 distribution of series. This includes `table` and `prop.table` on base
 **R**, and `group_by/summarise` and `count` in **dplyr**. However,
 these functions are somehow frustrating as some very common tasks,
@@ -34,10 +34,10 @@ like:
 
 - adding a total,
 - computing relative frequencies or percentage instead of counts,
-- merging high values of integer series in a `>=N` cathegory,
-- computing cummulative distributions, 
+- merging high values of integer series in a `>=N` category,
+- computing cumulative distributions, 
 
-are not tedious. Moreover, to our knowledge, **R** offer weak support
+are tedious. Moreover, to our knowledge, **R** offers weak support
 for numerical series for which the numerical value is not known at the
 individual level, but only the fact that this value belongs to a
 certain class. `descstat` is intended to provide user-friendly tools
@@ -62,7 +62,7 @@ library("descstat")
 
 # Frequency tables
 
-Frequency tables are suitable to summarise the univariate distribution
+Frequency tables are suitable to summarize the univariate distribution
 of a categorical or an integer series. In `tidyverse`, this task can be
 performed using the `dplyr::count` function. For example, the `rgp`
 data set, which is an extract of the French cencus, contains the
@@ -88,20 +88,20 @@ but it has several further arguments which can improve the result:
     - `n` for the count or absolute frequencies (the default),
     - `f` for the (relative) frequencies,
     - `p` for the percentage (*ie* $f\times 100$),
-	- `N`, `F` and `P` returns the cummulative values of `n`, `f` and
+	- `N`, `F` and `P` returns the cumulative values of `n`, `f` and
       `p`.
 - `total` a boolean, if `TRUE`, a total is returned,
 - `max`, suitable for an integer series only, is an integer which is the
   maximum value presented in the frequency table, *eg* `max = 3` creates
   a last line which is `>=3`.
   
-The following line use all the possible letters.
+The following command use all the possible letters.
 
 ```{r }
 rgp %>% freq_table(children, cols = "nfpNFP")
 ```
 
-As there are few occurences of families with more than 3 children, we
+As there are few occurrences of families with more than 3 children, we
 set `max = 3` and add a total by setting `total` to `TRUE`.
 
 ```{r }
@@ -132,7 +132,7 @@ passed to the `tbl_df` method:
 ```{r }
 descstat:::format.freq_table
 ```
-The `pre_print` function should be used explicitely while using
+The `pre_print` function should be used explicitly while using
 `knitr::kable`, as this function doesn't use any `format` method:
 
 ```{r }
@@ -155,7 +155,7 @@ Note the use of the `pre_print` method which turns the `3.5` numerical
 value in `>=3`.
 
 To get more enhanced graphics, a `pre_plot` method is provided, with a
-`plot` argument equal to `banner` or `cummulative`. With `plot =
+`plot` argument equal to `banner` or `cumulative`. With `plot =
 "banner"`,
 
 ```{r }
@@ -240,9 +240,10 @@ wages %>% freq_table(size)
 
 ## Creating histogram tables
 
-The `hist_table` function provides a richer interface. First, a
-`break` argument is provided, which is a numerical vector that can be
-used to reduce the number of classes:
+The `hist_table` function provides a richer interface. Firstly, it
+returns a series called `x` which is the center of the
+classes. Secondly, a `break` argument is provided, which is a
+numerical vector that can be used to reduce the number of classes:
 
 ```{r }
 wages %>% hist_table(size, breaks = c(20, 250))
@@ -265,7 +266,7 @@ can be either:
   first class is `0` and the upper bound of the last class is `Inf`. 
 
 Moreover, as for `freq_table`, the `cols` argument enables the
-computation of counts, frequencies and percentage and the cummulative
+computation of counts, frequencies and percentage and the cumulative
 values are obtained using upper caps.
 
 ```{r }
@@ -428,7 +429,7 @@ lzc <- wages %>% hist_table(wage, "MF", breaks = c(10, 20, 30, 40, 50)) %>%
     pre_plot(plot = "lorenz")
 lzc
 ```
-Each line in the resulting tibble indicate the coordonates (`F` for
+Each line in the resulting tibble indicate the coordinates (`F` for
 `x` and `M` for `y`) of the points that are necessary to plot the
 polygons under the Lorenz curve. `pts` is a logical which indicates
 which lines correspond to points that are on the Lorenz 
@@ -544,7 +545,7 @@ The same contingency table can be obtained using
 `descstat::cont_table`:
 
 ```{r }
-wages2 %>% cont_table(wage, size) %>% print(n = Inf)
+wages2 %>% cont_table(wage, size)
 ```
 
 The result is a `cont_table` object, which is a tibble in "long"
@@ -583,7 +584,7 @@ the `cont_table` function.
 ## Plotting a contingency table
 
 A contingency table can be ploted using `geom_point`, with the size of
-the points proportional to the count of the cell. The `pre_plot`
+the points being proportional to the count of the cells. The `pre_plot`
 method replaces classes by values.
 
 ```{r }
@@ -600,10 +601,10 @@ one.
 
 - the joint distribution is obtained by dividing $n_{ij}$ by the
   sample size,
-- the marginal distribution is obtained by summing the counts columnwise
-  $n_{i.}=\sum_{j}n_{ij}$ for the first variable and rowwise $n_{.j} =
-  \sum_{i}n_{ij}$ for the second one,
-- the conditionnal distribution is obtained by dividing the joint by
+- the marginal distribution is obtained by summing the counts
+  column-wise $n_{i.}=\sum_{j}n_{ij}$ for the first variable and
+  row-wise $n_{.j} = \sum_{i}n_{ij}$ for the second one,
+- the conditional distribution is obtained by dividing the joint by
   the marginal frequencies.
   
 The `joint`, `marginal` and `conditional` functions return these three
@@ -643,7 +644,7 @@ wages2 %>% hist_table(size) %>% mean
 ```
 
 The `mean`, `stdev` and `variance` methods are actually only usefull
-while applied to a conditional distribution; in this case, considering
+when applied to a conditional distribution; in this case, considering
 for example the conditional distribution of the first variable, there
 are as many values returned that the number of modalities of the
 second (conditioning) variable.

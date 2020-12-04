@@ -24,10 +24,10 @@ indexes <- function(data, an, bien, quant, prix, base, chained = FALSE){
     # data for the base year
     data_base <- data %>% filter(an == base) %>% select(- an) %>%
         rename(quant_base = quant, prix_base = prix)
-    dep_tot_base <- data_base %>% summarise(depense = sum(quant_base * prix_base))
+    dep_tot_base <- data_base %>% summarise(depense = sum(.data$quant_base * .data$prix_base))
     data_base <- data_base %>% bind_cols(dep_tot_base) %>%
-        mutate(cbudg_base = quant_base * prix_base / depense) %>%
-        select(- depense)
+        mutate(cbudg_base = .data$quant_base * .data$prix_base / .data$depense) %>%
+        select(- .data$depense)
     # total expense by year
     dep_tot <- data %>% group_by(an) %>% summarise(dep_tot = sum(prix * quant))
     # initial data set with budget coefficients
@@ -35,46 +35,46 @@ indexes <- function(data, an, bien, quant, prix, base, chained = FALSE){
         select(- dep_tot)
     data <- data %>% left_join(data_base)
     if (! chained){
-        data_synth <- data %>% mutate(prix = prix / prix_base,
-                                      quant = quant / quant_base) %>%
-            select(- quant_base, - prix_base)
+        data_synth <- data %>% mutate(prix = prix / .data$prix_base,
+                                      quant = quant / .data$quant_base) %>%
+            select(- .data$quant_base, - .data$prix_base)
         data_synth <- data_synth %>% group_by(an) %>%
-            summarise(laspeyres_prix = sum(prix * cbudg_base) * 100,
-                      laspeyres_quant = sum(quant * cbudg_base) * 100,
-                      pasche_prix = 1 / sum(1 / prix * cbudg) * 100,
-                      pasche_quant = 1 / sum(1 / quant * cbudg) * 100) %>%
-            mutate(fish_prix = sqrt(laspeyres_prix * pasche_prix),
-                   fish_quant = sqrt(laspeyres_quant * pasche_quant))
+            summarise(laspeyres_prix = sum(prix * .data$cbudg_base) * 100,
+                      laspeyres_quant = sum(quant * .data$cbudg_base) * 100,
+                      pasche_prix = 1 / sum(1 / prix * .data$cbudg) * 100,
+                      pasche_quant = 1 / sum(1 / quant * .data$cbudg) * 100) %>%
+            mutate(fish_prix = sqrt(.data$laspeyres_prix * .data$pasche_prix),
+                   fish_quant = sqrt(.data$laspeyres_quant * .data$pasche_quant))
         data_synth <- data_synth %>% pivot_longer(-an) %>%
-            separate(name, into = c("indice", "grandeur")) %>%
-            pivot_wider(names_from = grandeur, values_from = value)
+            separate(.data$name, into = c("indice", "grandeur")) %>%
+            pivot_wider(names_from = .data$grandeur, values_from = .data$value)
     }
     else{
         data_synth <- data %>% group_by(bien) %>%
             mutate(prix = prix / lag(prix),
                    quant = quant / lag(quant),
-                   lcbudg = lag(cbudg)) %>% group_by(an) %>%
-            summarise(laspeyres_prix = sum(prix * lcbudg),
-                      laspeyres_prix = ifelse(is.na(laspeyres_prix), 1, laspeyres_prix),
-                      laspeyres_quant = sum(quant * lcbudg),
-                      laspeyres_quant = ifelse(is.na(laspeyres_quant), 1, laspeyres_quant),
-                      pasche_prix = sum(prix * cbudg),
-                      pasche_prix = ifelse(is.na(pasche_prix), 1, pasche_prix),
-                      pasche_quant = sum(quant * cbudg),
-                      pasche_quant = ifelse(is.na(pasche_quant), 1, pasche_quant)) %>%
-            mutate(laspeyres_prix = cumprod(laspeyres_prix),
-                   laspeyres_quant = cumprod(laspeyres_quant),
-                   pasche_prix = cumprod(pasche_prix),
-                   pasche_quant = cumprod(pasche_quant))
+                   lcbudg = lag(.data$cbudg)) %>% group_by(an) %>%
+            summarise(laspeyres_prix = sum(prix * .data$lcbudg),
+                      laspeyres_prix = ifelse(is.na(.data$laspeyres_prix), 1, .data$laspeyres_prix),
+                      laspeyres_quant = sum(quant * .data$lcbudg),
+                      laspeyres_quant = ifelse(is.na(.data$laspeyres_quant), 1, .data$laspeyres_quant),
+                      pasche_prix = sum(prix * .data$cbudg),
+                      pasche_prix = ifelse(is.na(.data$pasche_prix), 1, .data$pasche_prix),
+                      pasche_quant = sum(quant * .data$cbudg),
+                      pasche_quant = ifelse(is.na(.data$pasche_quant), 1, .data$pasche_quant)) %>%
+            mutate(laspeyres_prix = cumprod(.data$laspeyres_prix),
+                   laspeyres_quant = cumprod(.data$laspeyres_quant),
+                   pasche_prix = cumprod(.data$pasche_prix),
+                   pasche_quant = cumprod(.data$pasche_quant))
         data_synth <- data_synth %>% pivot_longer(- an) %>%
-            separate(name, into = c("indice", "grandeur")) %>%
-            pivot_wider(names_from = grandeur, values_from = value)
+            separate(.data$name, into = c("indice", "grandeur")) %>%
+            pivot_wider(names_from = .data$grandeur, values_from = .data$value)
         data_base <- filter(data_synth, an == base) %>%
             rename(prix_base = prix, quant_base = quant) %>% select(-an)
         data_synth <- data_synth %>% left_join(data_base) %>%
-            mutate(prix = prix / prix_base * 100,
-                   quant = quant / quant_base * 100) %>%
-            select(- prix_base, - quant_base)
+            mutate(prix = prix / .data$prix_base * 100,
+                   quant = quant / .data$quant_base * 100) %>%
+            select(- .data$prix_base, - .data$quant_base)
     }
     data_synth
 }

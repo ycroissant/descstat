@@ -54,6 +54,7 @@ cls2val <- function(x, pos = 0, xfirst = NULL, xlast = NULL, wlast = NULL, ...)
 
 
 #' @rdname cls2val
+#' @importFrom rlang .data
 #' @export
 cls2val.character <- function(x, pos = 0, xfirst = NULL, xlast = NULL, wlast = NULL, ...){
     K <- length(x)
@@ -97,7 +98,7 @@ cls2val.character <- function(x, pos = 0, xfirst = NULL, xlast = NULL, wlast = N
     }
     xnum <- (1 - pos) * xl + pos * xu
     x2 <- tibble(cls = cls, center = xnum)
-    x <- tibble(cls = ox) %>% left_join(tibble(cls = cls, center = xnum), by = "cls") %>% pull(center)
+    x <- tibble(cls = ox) %>% left_join(tibble(cls = cls, center = xnum), by = "cls") %>% pull(.data$center)
     x
 }
 
@@ -109,7 +110,7 @@ cls2val.factor <- function(x, pos = 0, xfirst = NULL, xlast = NULL, wlast = NULL
     cls_val <- tibble(x = lev_x,
                       x_center = cls2val(x = x, pos = pos, xfirst = xfirst,
                                          xlast = xlast, wlast = wlast))
-    left_join(tibble(x = as.character(x)), cls_val, by = "x") %>% pull(x_center)
+    left_join(tibble(x = as.character(x)), cls_val, by = "x") %>% pull(.data$x_center)
 }
 
 acls2val <- function(x, pos = 0, xfirst = NULL, xlast = NULL){
@@ -152,7 +153,7 @@ recut <- function(x, breaks = NULL){
     if (is.numeric(x)) stop("recode is not relevant for a numeric series")
     # x breaks are provided in order to reduce the number of classes
     # first guess the value of right
-    left_op <- x %>% .[2] %>% substr(1, 1)
+    left_op <- x[2] %>% substr(1, 1)
     if (left_op == "[") right <- FALSE else right <- TRUE
     # get the initial classes and computs the breaks
     init_cls <- x %>% unique %>% sort
@@ -179,9 +180,9 @@ recut <- function(x, breaks = NULL){
                                       ifelse(length(dbrks) == 1, "is", "are"),
                                       " not part of the  initial set of breaks", sep = "")),
                                 sep = "")
-    cls_table <- cls_table %>% mutate(new_cls = cut(center, breaks, right = right)) %>%
-        select(x, new_cls)
-    tibble(x = x) %>% left_join(cls_table, by = "x") %>% pull(new_cls)
+    cls_table <- cls_table %>% mutate(new_cls = cut(.data$center, breaks, right = right)) %>%
+        select(x, .data$new_cls)
+    tibble(x = x) %>% left_join(cls_table, by = "x") %>% pull(.data$new_cls)
 }
 
 #' @rdname cls2val

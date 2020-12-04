@@ -93,7 +93,7 @@ cont_table <- function(data, y1, y2, weights = NULL,
 fun.cont_table <- function(x, fun = weighted.mean, drop = TRUE, ...){
     if (! is.null(attr(x, "y"))){
         y_name <- attr(x, "y")
-        y <- x %>% .[[y_name]] %>% unique %>% setdiff("Total")
+        y <- x[[y_name]] %>% unique %>% setdiff("Total")
         limits <- attr(x, "limits")[[y_name]]
         y_ctr <- cls2val(y, 0.5,
                          xfirst = limits$xfirst,
@@ -105,7 +105,7 @@ fun.cont_table <- function(x, fun = weighted.mean, drop = TRUE, ...){
     if (length(x) == 2){
         # marginal distribution
         x[[y_name]] <- y_ctr[x[[y_name]]]
-        x <- x %>% summarise(stat = fun(!! as.symbol(y_name), w = f, ...)) %>%
+        x <- x %>% summarise(stat = fun(!! as.symbol(y_name), w = .data$f, ...)) %>%
             set_names(y_name)
     }
     else{
@@ -116,7 +116,7 @@ fun.cont_table <- function(x, fun = weighted.mean, drop = TRUE, ...){
             # put the levels of the conditional variable in the right order
             y <- x %>% pull(cond_name) %>% unique %>% tibble %>% set_names(cond_name)
             x <- x %>% group_by( !! as.symbol(cond_name)) %>%
-                summarise(stat = fun(!! as.symbol(y_name), w = f, ...)) %>%
+                summarise(stat = fun(!! as.symbol(y_name), w = .data$f, ...)) %>%
                 set_names(c(cond_name, y_name))
             x <- y %>% left_join(x, by = cond_name)
         }
@@ -137,8 +137,8 @@ fun.cont_table <- function(x, fun = weighted.mean, drop = TRUE, ...){
                               wlast = limits[[2]]$wlast)
             names(y2_ctr) <- y2
             x[[2]] <- y2_ctr[x[[2]]]
-            x <- x %>% summarise(stat1 = fun(!! as.symbol(names(x)[1]), w = f, ...),
-                                 stat2 = fun(!! as.symbol(names(x)[2]), w = f, ...)) %>%
+            x <- x %>% summarise(stat1 = fun(!! as.symbol(names(x)[1]), w = .data$f, ...),
+                                 stat2 = fun(!! as.symbol(names(x)[2]), w = .data$f, ...)) %>%
                 set_names(c(names(x)[1], names(x)[2]))
         }
     }
@@ -162,6 +162,7 @@ stdev.cont_table <- function(x, ..., drop = TRUE)
     fun.cont_table(x, fun = stdev, drop = drop, ...)
 
 #' @rdname cont_table
+#' @importFrom rlang .data
 #' @export
 covariance.cont_table <- function(x, drop = TRUE, ...){
     x <- total.omit(x)
@@ -178,7 +179,7 @@ covariance.cont_table <- function(x, drop = TRUE, ...){
     x <- x %>%
         left_join(vals_1, by = names(vals_1)[1]) %>%
         left_join(vals_2, by = names(vals_2)[1])
-    x <- x %>% summarise(covariance = sum(f * (val1 - means[1]) * (val2 - means[2])))
+    x <- x %>% summarise(covariance = sum(.data$f * (.data$val1 - means[1]) * (.data$val2 - means[2])))
     if (drop) x <- x %>% pull
     x
 }
@@ -248,7 +249,7 @@ marginal <- function(x, y = NULL){
 
     y_ord <- tibble(unique(na.omit(x[[y_name]]))) %>% set_names(y_name)
     x <- x %>% total.omit %>% group_by(!! as.symbol(y_name)) %>%
-        summarise(f = sum(n)) %>% mutate(f = f / sum(f))
+        summarise(f = sum(n)) %>% mutate(f = .data$f / sum(.data$f))
     x <- y_ord %>% left_join(x, by = y_name)    
     structure(x, class = c("cont_table", class(x)), y = y_name, limits = limits)
 }
@@ -276,12 +277,12 @@ var_decomp <- function(x, y){
 #' @rdname cont_table
 #' @export
 summary.var_decomp <- function(object, ...){
-    object %>% summarise(gmean = sum(mean * f),
-                         inter = sum( (mean - gmean) ^ 2 * f),
-                         intra = sum(var * f),
-                         total = inter + intra,
-                         ratio = inter / total) %>%
-        select(- gmean)
+    object %>% summarise(gmean = sum(mean * .data$f),
+                         inter = sum( (mean - .data$gmean) ^ 2 * .data$f),
+                         intra = sum(var * .data$f),
+                         total = .data$inter + .data$intra,
+                         ratio = .data$inter / .data$total) %>%
+        select(- .data$gmean)
 }
 
 #' @rdname cont_table
@@ -309,7 +310,7 @@ pre_print.cont_table <- function(x){
         names_x <- paste(names(x)[1], "|", names(x)[2], sep = "")
         names(x)[1] <- names_x
         x <- x %>% pivot_wider(names_from = 2, values_from = 3)
-        if ("NA" %in% names(x)) x <- x %>% rename(Total = `NA`)
+        if ("NA" %in% names(x)) x <- x %>% rename(Total = .data$`NA`)
         if (any(is.na(x[[1]])))
             x[[1]] <- ifelse(is.na(x[[1]]), "Total", x[[1]])
     }

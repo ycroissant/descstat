@@ -74,20 +74,20 @@ pre_plot.hist_table <- function(x, y = NULL,
         if (plot == "histogram"){
             data <- data %>%
                 rename(cls = 1) %>%
-                select(cls, y_ne = y) %>%
+                select(.data$cls, y_ne = y) %>%
                 mutate(x_sw = xl,
                        y_sw = 0,
                        x_nw = xl,
-                       y_nw = y_ne,
+                       y_nw = .data$y_ne,
                        x_ne = xu,
-                       y_ne = y_ne,
+                       y_ne = .data$y_ne,
                        x_se = xu,
                        y_se = 0) %>%
-                pivot_longer( - cls) %>%
-                separate(name, into = c("axe", "pos")) %>%
-                pivot_wider(names_from = axe, values_from = value) %>%
-                mutate(pos = factor(pos, levels = c("sw", "nw", "ne", "se"))) %>%
-                arrange(desc(cls), pos)
+                pivot_longer( - .data$cls) %>%
+                separate(.data$name, into = c("axe", "pos")) %>%
+                pivot_wider(names_from = .data$axe, values_from = .data$value) %>%
+                mutate(pos = factor(.data$pos, levels = c("sw", "nw", "ne", "se"))) %>%
+                arrange(desc(.data$cls), .data$pos)
         }
         if (plot == "freqpoly"){
             xo <- xl[1] - (x[1] - xl[1])
@@ -103,14 +103,14 @@ pre_plot.hist_table <- function(x, y = NULL,
         data <- data %>% add_row(F = 0, M = 0, .before = 0) %>%
             transmute(cls = !! as.symbol(names(data)[1]),
                       F_sw = lag(F), F_nw = lag(F), F_se = F, F_ne = F,
-                      M_sw = 0, M_se = 0, M_ne = M, M_nw = lag(M)) %>%
-            pivot_longer(F_sw:M_nw) %>%
-            separate(name, into = c("axe", "pos")) %>%
-            mutate(pos = factor(pos, levels = c("sw", "nw", "ne", "se")),
-                   pts = pos %in% c("nw", "ne")) %>%
-            arrange(cls, pos) %>%
-            filter(! is.na(cls)) %>%
-            tidyr::pivot_wider(names_from = axe, values_from = value)
+                      M_sw = 0, M_se = 0, M_ne = .data$M, M_nw = lag(.data$M)) %>%
+            pivot_longer(.data$F_sw:.data$M_nw) %>%
+            separate(.data$name, into = c("axe", "pos")) %>%
+            mutate(pos = factor(.data$pos, levels = c("sw", "nw", "ne", "se")),
+                   pts = .data$pos %in% c("nw", "ne")) %>%
+            arrange(.data$cls, .data$pos) %>%
+            filter(! is.na(.data$cls)) %>%
+            tidyr::pivot_wider(names_from = .data$axe, values_from = .data$value)
     }
     structure(data, class = c("hist_table", class(data)))
 }
@@ -122,7 +122,7 @@ pre_plot.freq_table <- function(x, y = NULL, plot = c("banner", "cumulative"), .
     if (plot == "banner"){
         if (is.null(y)) y <- names(x)[2]
         x <- x %>% select(1, all_of(y))
-        z <- x %>% names %>% .[1]
+        z <- names(x)[1]
         x <- x %>% total.omit %>%
             mutate(ypos = cumsum(!! as.symbol(y)) - 0.5 * !! as.symbol(y)) %>% 
             map_df(rev)
@@ -135,10 +135,10 @@ pre_plot.freq_table <- function(x, y = NULL, plot = c("banner", "cumulative"), .
             transmute(x_hor = x, xend_hor = lag(x), y_hor = y, yend_hor = y,
                       x_vert = lag(x), xend_vert = lag(x), y_vert = y, yend_vert = lag(y)) %>%
             pivot_longer(1:8) %>%
-            separate(name, into = c("coord", "pos")) %>%
+            separate(.data$name, into = c("coord", "pos")) %>%
             bind_cols(id = rep(1:(2 * nrow(x)), each = 4)) %>%
-            pivot_wider(names_from = coord, values_from = value) %>%
-            select(-id)
+            pivot_wider(names_from = .data$coord, values_from = .data$value) %>%
+            select(- .data$id)
     }
     x
 }

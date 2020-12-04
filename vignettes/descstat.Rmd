@@ -272,6 +272,14 @@ is the cumulated mass.
 wages %>% hist_table(size, cols = "dmM", breaks = c(20, 100, 250))
 ```
 
+A total can be computed for `f`, `n` and `p`, as for `freq_table`
+objects.
+
+```{r }
+wages %>% hist_table(size, cols = "dmMfnFp", breaks = c(20, 100, 250),
+                     total = TRUE)
+```
+
 ## Classes and values
 
 For the computation of descriptive statistics, classes should be

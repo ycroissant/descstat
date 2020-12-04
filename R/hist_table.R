@@ -143,6 +143,17 @@ hist_table <- function(data, x, cols = "n", vals = "x",
     vals_pos <- match(c("x", "l", "a", "u"), names(res)) %>% na.omit %>% sort
     res <- res %>% select({{ x }}, all_of(c(vals_pos, cols_pos)))
     # TODO how to add a total in an hist_table
+    if (total){
+        lowcaps <- select(res, matches("^[nfp]{1}$", ignore.case = FALSE))
+        # The series is a factor for which a Total level should be added
+        levelsx <- c(levels(res[[1]]), "Total")
+        res[[1]] <- factor(res[[1]], levels = levelsx)
+        total_low <- lowcaps %>% summarise_all(sum) %>%
+            mutate("{{ x }}" :=  factor("Total", levels = levelsx))#ifelse(x_is_num, NA, "Total"))
+        res <- res %>% bind_rows(total_low)
+        print(total_low)
+    }
+
     structure(res, class = c("hist_table", class(res)))
 }
     

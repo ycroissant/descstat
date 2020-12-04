@@ -92,8 +92,8 @@ but it has several further arguments which can improve the result:
       `p`.
 - `total` a boolean, if `TRUE`, a total is returned,
 - `max`, suitable for an integer series only, is an integer which is the
-  maximum value presented in the frequency table, *eg* `max = 3` create
-  a last line which is `>=3`
+  maximum value presented in the frequency table, *eg* `max = 3` creates
+  a last line which is `>=3`.
   
 The following line use all the possible letters.
 
@@ -111,8 +111,8 @@ rgp %>% freq_table(children, max = 3, total = TRUE)
 ## Printing a frequency table
 
 Note that in the printed table, the `children` series is now a
-character as the last values are `>=3` and `total`. Actually
-`freq_table` returns an object of class `freq_table` which inherit
+character as the last two values are `>=3` and `Total`. Actually
+`freq_table` returns an object of class `freq_table` which inherits
 from the `tbl_df` class. A look at the structure of the object:
 
 ```{r }
@@ -143,22 +143,26 @@ rgp %>% freq_table(children, max = 3, total = TRUE) %>%
 ## Ploting a frequency table
 
 The most natural way to plot a frequency table with `ggplot` is to use
-`geom_col` (or `geom_bar` with `stat = 'identity'`).
+`geom_col` (or equivalently `geom_bar` with `stat = 'identity'`).
 
 ```{r }
 cld <- rgp %>% freq_table(children, cols = "nf", max = 3)
-cld %>% pre_print %>% ggplot(aes(children, f)) + geom_col(fill = "white", color = "black")
+cld %>% pre_print %>% ggplot(aes(children, f)) +
+    geom_col(fill = "white", color = "black")
 ```
 
-To get more complicated graphics, a `pre_plot` method is provided,
-with a `plot` argument equal to `banner` or `cummulative`. With `plot =
+Note the use of the `pre_print` method which turns the `3.5` numerical
+value in `>=3`.
+
+To get more enhanced graphics, a `pre_plot` method is provided, with a
+`plot` argument equal to `banner` or `cummulative`. With `plot =
 "banner"`,
 
 ```{r }
 cld %>% pre_print %>% pre_plot("f", plot = "banner")
 ```
 
-`pre_plot` returns an `ypos` series which indicates the coordinate
+`pre_plot` returns an `ypos` series which indicates the coordinates
 where to write the label corresponding to the frequencies.
 
 ```{r }
@@ -193,7 +197,7 @@ cumulative:
 cld <- rgp %>% freq_table(children, "F", max = 5, total = TRUE)
 cld %>% pre_plot(plot = "cumulative") %>% print(n = 5)
 ```
-this returns the 4 series which have the names of the aesthetics that
+this returns four series which have the names of the aesthetics that
 are mandatory for `geom_segment`; `x`, `xend`, `y` and `yend`. It
 also returns a `pos` series with which one can draw differently the
 horizontal (`hor`) and the vertical (`vert`) segments, using for
@@ -225,7 +229,7 @@ class of firm size.
 wages %>% print(n = 3)
 ```
 
-The univariate distribution of say `size` can be computed using the
+The univariate distribution of, for example, `size` can be computed using the
 `dplyr::count` or the `descstat::freq_table` functions.
 
 
@@ -281,7 +285,7 @@ A total can be computed for `f`, `n` and `p`, as for `freq_table`
 objects.
 
 ```{r }
-wages %>% hist_table(size, cols = "dmMfnFp", breaks = c(20, 100, 250),
+wages %>% hist_table(size, cols = "dMfnFp", breaks = c(20, 100, 250),
                      total = TRUE)
 ```
 
@@ -330,7 +334,7 @@ letters:
 - `a` for the width of the class.
 
 ```{r }
-wages %>% hist_table(size, vals = "xlua", breaks = c(20, 100, 250), wlast = 2)
+wages %>% hist_table(size, vals = "xlupa", breaks = c(20, 100, 250), wlast = 2)
 ```
 
 ## Under the hood: converting classes to values
@@ -361,15 +365,15 @@ providing a numerical vector which should be a subset of the initial
 class limits:
 
 ```{r }
-wages %>% pull(wage) %>% levels
+wages %>% pull(wage) %>% levels %>% head
 wages2 <- wages %>% mutate(wage = recut(wage, c(10, 20, 50)))
 wages2 %>% pull(wage) %>% levels
 ```
 
-The `cls2val` function takes as arguments a series containing a
-numerical class, a `pos` argument and the three arguments `xfirst`,
+The `cls2val` function takes as arguments a series which contains
+numerical classes, a `pos` argument and the three arguments `xfirst`,
 `xlast` and `wlast` previously described. `pos` is a numerical value
-between 0 and 1:
+which can take any value between 0 and 1:
 
 - `pos = 0` returns the lower bound of the class,
 - `pos = 1` returns the upper bound of the class,
@@ -415,13 +419,38 @@ wages %>% hist_table(wage, "d", breaks = c(10, 20, 30, 40, 50)) %>%
     ggplot(aes(x, y)) + geom_line()
 ```
 
+Lorenz curve can be plotted using `plot = "lorenz"`. Not that in this
+case, the table should contain `F` and `M`.
+
+
+```{r }
+lzc <- wages %>% hist_table(wage, "MF", breaks = c(10, 20, 30, 40, 50)) %>%
+    pre_plot(plot = "lorenz")
+lzc
+```
+Each line in the resulting tibble indicate the coordonates (`F` for
+`x` and `M` for `y`) of the points that are necessary to plot the
+polygons under the Lorenz curve. `pts` is a logical which indicates
+which lines correspond to points that are on the Lorenz 
+
+
+
+```{r }
+lzc %>% ggplot(aes(F, M)) +
+    geom_polygon(fill = "lightyellow", color = "black") +
+    geom_point(data = filter(lzc, pts)) +
+    geom_line(data = tibble(F = c(0, 1), M = c(0, 1)), color = "blue") +
+    geom_line(data = tibble(F = c(0, 1, 1), M = c(0, 0, 1)), color = "red")
+```
+
+
 ## Computing descriptive statistics
 
 Descriptive statistics can easily be computed applying functions to
 `hist_table` objects. The problem is that only a few statistical
-functions of the `base` and the `stats` packages of **R** are
-generic. For these, methods where written for `hist_table` objects,
-for the other ones, we had to create new functions.
+functions of the `base` and the `stats` packages are generic. For
+these, methods where written for `hist_table` objects, for the other
+ones, we had to create new functions.
 
 ```{r echo = FALSE}
 tribble(~ "base R", ~ descstat,
@@ -518,7 +547,7 @@ The same contingency table can be obtained using
 wages2 %>% cont_table(wage, size) %>% print(n = Inf)
 ```
 
-The result is an `cont_table` object, which is a tibble in "long"
+The result is a `cont_table` object, which is a tibble in "long"
 format, as the result of the `dplyr::count` function. The printing of
 the table in "wide" format is performed by the `pre_print` method,
 which is included in the `format` method, but should be used
@@ -565,15 +594,16 @@ wages2 %>% cont_table(size, wage) %>% pre_plot %>%
 
 ## Computing the distributions from a contingency table
 
-$n_{ij}$ is the count of the cell corresponding to the i^th^ modality
-of the first variable and the j^th^ modality of the second one.
+$n_{ij}$ is the count of the cell corresponding to the $i$^th^
+modality of the first variable and the $j$^th^ modality of the second
+one.
 
 - the joint distribution is obtained by dividing $n_{ij}$ by the
   sample size,
 - the marginal distribution is obtained by summing the counts columnwise
   $n_{i.}=\sum_{j}n_{ij}$ for the first variable and rowwise $n_{.j} =
   \sum_{i}n_{ij}$ for the second one,
-- the conditionnal distribution is obtained by dividing the joint and
+- the conditionnal distribution is obtained by dividing the joint by
   the marginal frequencies.
   
 The `joint`, `marginal` and `conditional` functions return these three
@@ -657,7 +687,7 @@ Or more simply using the `var_decomp` function:
 wht_wage <- wht %>% var_decomp("wage")
 wht_wage
 ```
-which has a `summary` methods which compute the different elements of
+which has a `summary` method which computes the different elements of
 the decomposition:
 
 ```{r }

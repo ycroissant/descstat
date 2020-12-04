@@ -304,12 +304,12 @@ regline <- function(formula, data){
 #' @rdname cont_table
 #' @export
 pre_print.cont_table <- function(x){
-    if (length(x) == 3){
-        x <- x %>% pivot_wider(names_from = 2, values_from = 3)
-        if ("NA" %in% names(x)) x <- x %>% rename(Total = `NA`)
-        if (any(is.na(x[[1]])))
-            x[[1]] <- ifelse(is.na(x[[1]]), "Total", x[[1]])
-    }
+    names_x <- paste(names(x)[1], "|", names(x)[2], sep = "")
+    names(x)[1] <- names_x
+    x <- x %>% pivot_wider(names_from = 2, values_from = 3)
+    if ("NA" %in% names(x)) x <- x %>% rename(Total = `NA`)
+    if (any(is.na(x[[1]])))
+        x[[1]] <- ifelse(is.na(x[[1]]), "Total", x[[1]])
     x
 }
 

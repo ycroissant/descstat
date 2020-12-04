@@ -45,55 +45,72 @@ pre_plot <- function(x, y = NULL, plot = NULL, ...)
 #' @rdname pre_plot
 #' @export
 pre_plot.hist_table <- function(x, y = NULL,
-                                plot = c("histogram", "freqpoly"), ...){
+                                plot = c("histogram", "freqpoly", "lorenz"), ...){
     plot <- match.arg(plot)
     data <- x
-    if (! "x" %in% names(data))
-        stop("the table should contains the center of the classes")
-    if (is.null(y)){
-        ys <- c("d", "f", "p", "n")
-        cols <- match(names(data), ys) %>% na.omit %>% as.numeric
-        if (length(cols) == 0L)
-            stop("nothing to plot, the tibble should contain either d, f or n")
-        if (length(cols) > 1L)
-            stop("the variable to plot should be specified")
-        data <- rename(data, y = ys[cols]) %>%
-            select(1, x, y)
+    if (plot %in% c("histogram", "freqpoly")){
+        if (! "x" %in% names(data))
+            stop("the table should contains the center of the classes")
+        if (is.null(y)){
+            ys <- c("d", "f", "p", "n")
+            cols <- match(names(data), ys) %>% na.omit %>% as.numeric
+            if (length(cols) == 0L)
+                stop("nothing to plot, the tibble should contain either d, f or n")
+            if (length(cols) > 1L)
+                stop("the variable to plot should be specified")
+            data <- rename(data, y = ys[cols]) %>%
+                select(1, x, y)
+        }
+        else{
+            data <- data %>% select(1, x, y = matches(paste("^[", y, "]{1}$", sep = ""),
+                                                      ignore.case = FALSE))
+        }        
+        K <- nrow(data)
+        xu <- data %>% pull(1) %>% cls2val(1)
+        xl <- data %>% pull(1) %>% cls2val(0)
+        x <- data %>% pull(x)
+        xu[K] <- xl[K] + 2 * (x[K] - xl[K])
+        xl[1] <- xu[1] - 2 * (xu[1] - x[1])
+        if (plot == "histogram"){
+            data <- data %>%
+                rename(cls = 1) %>%
+                select(cls, y_ne = y) %>%
+                mutate(x_sw = xl,
+                       y_sw = 0,
+                       x_nw = xl,
+                       y_nw = y_ne,
+                       x_ne = xu,
+                       y_ne = y_ne,
+                       x_se = xu,
+                       y_se = 0) %>%
+                pivot_longer( - cls) %>%
+                separate(name, into = c("axe", "pos")) %>%
+                pivot_wider(names_from = axe, values_from = value) %>%
+                mutate(pos = factor(pos, levels = c("sw", "nw", "ne", "se"))) %>%
+                arrange(desc(cls), pos)
+        }
+        if (plot == "freqpoly"){
+            xo <- xl[1] - (x[1] - xl[1])
+            xs <- xu[K] + (xu[K] - x[K])
+            data <- data %>%
+                select(- 1) %>%
+                add_row(x = xo, y = 0, .before = 0) %>%
+                add_row(x = xs, y = 0, .after = Inf)
+        }
     }
-    else{
-        data <- data %>% select(1, x, y = matches(paste("^[", y, "]{1}$", sep = ""), ignore.case = FALSE))
-    }        
-    K <- nrow(data)
-    xu <- data %>% pull(1) %>% cls2val(1)
-    xl <- data %>% pull(1) %>% cls2val(0)
-    x <- data %>% pull(x)
-    xu[K] <- xl[K] + 2 * (x[K] - xl[K])
-    xl[1] <- xu[1] - 2 * (xu[1] - x[1])
-    if (plot == "histogram"){
-        data <- data %>%
-            rename(cls = 1) %>%
-            select(cls, y_ne = y) %>%
-            mutate(x_sw = xl,
-                   y_sw = 0,
-                   x_nw = xl,
-                   y_nw = y_ne,
-                   x_ne = xu,
-                   y_ne = y_ne,
-                   x_se = xu,
-                   y_se = 0) %>%
-            pivot_longer( - cls) %>%
+    if (plot == "lorenz"){
+        if (! all(c("M", "F") %in% names(data))) stop("the table should contain M and F")
+        data <- data %>% add_row(F = 0, M = 0, .before = 0) %>%
+            transmute(cls = !! as.symbol(names(data)[1]),
+                      F_sw = lag(F), F_nw = lag(F), F_se = F, F_ne = F,
+                      M_sw = 0, M_se = 0, M_ne = M, M_nw = lag(M)) %>%
+            pivot_longer(F_sw:M_nw) %>%
             separate(name, into = c("axe", "pos")) %>%
-            pivot_wider(names_from = axe, values_from = value) %>%
-            mutate(pos = factor(pos, levels = c("sw", "nw", "ne", "se"))) %>%
-            arrange(desc(cls), pos)
-    }
-    if (plot == "freqpoly"){
-        xo <- xl[1] - (x[1] - xl[1])
-        xs <- xu[K] + (xu[K] - x[K])
-        data <- data %>%
-            select(- 1) %>%
-            add_row(x = xo, y = 0, .before = 0) %>%
-            add_row(x = xs, y = 0, .after = Inf)
+            mutate(pos = factor(pos, levels = c("sw", "nw", "ne", "se")),
+                   pts = pos %in% c("nw", "ne")) %>%
+            arrange(cls, pos) %>%
+            filter(! is.na(cls)) %>%
+            tidyr::pivot_wider(names_from = axe, values_from = value)
     }
     structure(data, class = c("hist_table", class(data)))
 }

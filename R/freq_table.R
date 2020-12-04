@@ -97,6 +97,8 @@ format.freq_table <- function(x, ..., n = NULL, width = NULL, n_extra = NULL){
 #' @rdname freq_table
 #' @export
 pre_print.freq_table <- function(x){
+    a_NA <- which(is.na(x[[1]]))
+    if (length(a_NA)) x[[1]][a_NA] <- "Total"
     if (is.numeric(x[[1]])){
         dec_part <- x[[1]] %% floor(x[[1]])
         max_pos <- which(dec_part == 0.5)
@@ -106,8 +108,6 @@ pre_print.freq_table <- function(x){
             x[[1]] <- factor(x[[1]], levels = x[[1]])
         }
     }
-    a_NA <- which(is.na(x[[1]]))
-    if (length(a_NA)) x[[1]][a_NA] <- "Total"
     x
 }
 

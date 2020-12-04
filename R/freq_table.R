@@ -105,7 +105,7 @@ pre_print.freq_table <- function(x){
     }
     a_NA <- which(is.na(x[[1]]))
     if (length(a_NA)) x[[1]][a_NA] <- "Total"
-    if (is_numeric_series & length(max_pos)){
+    if (is_numeric_series && length(max_pos)){
         x[[1]][max_pos] <- paste(">=", floor(max_val), sep = "")
         x[[1]] <- factor(x[[1]], levels = x[[1]])
     }

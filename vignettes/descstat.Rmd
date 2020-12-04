@@ -30,13 +30,19 @@ otheme <- ggplot2::theme_set(ggplot2::theme_minimal())
 distribution of series. This includes `table` and `prop.table` on base
 **R**, and `group_by/summarise` and `count` in **dplyr**. However,
 these functions are somehow frustrating as some very common tasks,
-like adding a total or computing relative frequencies or percentage
-and not counts are not straightforward. Moreover, to our knowledge,
-**R** offer weak support for numerical series for which the numerical
-value is not known at the individual level, but only the fact that
-this value belongs to a certain class. `descstat` is intended to
-provide user-friendly tools to perform these kind of operations. More
-specifically, three kind of tables can be constructed with `descstat`:
+like:
+
+- adding a total,
+- computing relative frequencies or percentage instead of counts,
+- merging high values of integer series in a `>=N` cathegory,
+- computing cummulative distributions, 
+
+are not tedious. Moreover, to our knowledge, **R** offer weak support
+for numerical series for which the numerical value is not known at the
+individual level, but only the fact that this value belongs to a
+certain class. `descstat` is intended to provide user-friendly tools
+to perform these kind of operations. More specifically, three kind of
+tables can be constructed with `descstat`:
 
 - `freq_table` for frequency tables, suitable for factors or integer
   numerical series,
@@ -74,7 +80,7 @@ The `descstat::freq_table` function performs the same task:
 rgp %>% freq_table(children)
 ```
 
-but it has several further arguments which can improve the results:
+but it has several further arguments which can improve the result:
 
 - `cols` is a character containing one or several of the following
   letters:
@@ -85,7 +91,7 @@ but it has several further arguments which can improve the results:
 	- `N`, `F` and `P` returns the cummulative values of `n`, `f` and
       `p`.
 - `total` a boolean, if `TRUE`, a total is returned,
-- `max` suitable for an integer series only, an integer which is the
+- `max`, suitable for an integer series only, is an integer which is the
   maximum value presented in the frequency table, *eg* `max = 3` create
   a last line which is `>=3`
   
@@ -114,15 +120,14 @@ rgp %>% freq_table(children, max = 3, total = TRUE) %>% str
 ```
 
 indicates that we still have a tibble, with a numeric `children`
-series for which the last two values equal to 3 (for 3 and more) and
-`Inf` (for the total). There are two attributes, `max` and `total`,
-the first one being a numeric and the second one a boolean.
+series for which the last two values equal to 3.5 (for 3 and more) and
+`NA` (for the total).
 
-A `pre_print` function is provided with a method for
-`freq_table` objects. It turns the `children` series in a `character`,
-with `3` and `Inf` replaced by `>=3` and `Total`. This `pre_print`
-method is include in the `format` method for `freq_table` which is
-then passed to the `tbl_df` method:
+A `pre_print` function is provided with a method for `freq_table`
+objects. It turns the `children` series in a `character`, with `3.5`
+and `NA` replaced by `>=3` and `Total`. This `pre_print` method is
+included in the `format` method for `freq_table` objects, which is then
+passed to the `tbl_df` method:
 
 ```{r }
 descstat:::format.freq_table

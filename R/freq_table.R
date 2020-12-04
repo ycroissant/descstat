@@ -97,16 +97,17 @@ format.freq_table <- function(x, ..., n = NULL, width = NULL, n_extra = NULL){
 #' @rdname freq_table
 #' @export
 pre_print.freq_table <- function(x){
-    a_NA <- which(is.na(x[[1]]))
-    if (length(a_NA)) x[[1]][a_NA] <- "Total"
-    if (is.numeric(x[[1]])){
+    is_numeric_series <- is.numeric(x[[1]])
+    if (is_numeric_series){
         dec_part <- x[[1]] %% floor(x[[1]])
         max_pos <- which(dec_part == 0.5)
-        if (length(max_pos)){
-            max_val <- x[[1]][max_pos]
-            x[[1]][max_pos] <- paste(">=", floor(max_val), sep = "")
-            x[[1]] <- factor(x[[1]], levels = x[[1]])
-        }
+        max_val <- x[[1]][max_pos]
+    }
+    a_NA <- which(is.na(x[[1]]))
+    if (length(a_NA)) x[[1]][a_NA] <- "Total"
+    if (is_numeric_series & length(max_pos)){
+        x[[1]][max_pos] <- paste(">=", floor(max_val), sep = "")
+        x[[1]] <- factor(x[[1]], levels = x[[1]])
     }
     x
 }

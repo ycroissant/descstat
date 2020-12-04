@@ -334,7 +334,7 @@ letters:
 - `a` for the width of the class.
 
 ```{r }
-wages %>% hist_table(size, vals = "xlupa", breaks = c(20, 100, 250), wlast = 2)
+wages %>% hist_table(size, vals = "xlua", cols = "p", breaks = c(20, 100, 250), wlast = 2)
 ```
 
 ## Under the hood: converting classes to values

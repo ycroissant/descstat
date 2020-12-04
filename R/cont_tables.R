@@ -245,11 +245,13 @@ marginal <- function(x, y = NULL){
         }
     }
     # put the classes in the right order
+
     y_ord <- tibble(unique(na.omit(x[[y_name]]))) %>% set_names(y_name)
     x <- x %>% total.omit %>% group_by(!! as.symbol(y_name)) %>%
         summarise(f = sum(n)) %>% mutate(f = f / sum(f))
-    x <- y_ord %>% left_join(x, by = y_name)
-    structure(x, class = c("cont_table", class(x)), y = y_name, limits = limits)
+    x <- y_ord %>% left_join(x, by = y_name)    
+#    structure(x, class = c("cont_table", class(x)), y = y_name, limits = limits)
+    structure(x, class = class(x), y = y_name, limits = limits)
 }
 
 

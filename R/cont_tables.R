@@ -250,8 +250,7 @@ marginal <- function(x, y = NULL){
     x <- x %>% total.omit %>% group_by(!! as.symbol(y_name)) %>%
         summarise(f = sum(n)) %>% mutate(f = f / sum(f))
     x <- y_ord %>% left_join(x, by = y_name)    
-#    structure(x, class = c("cont_table", class(x)), y = y_name, limits = limits)
-    structure(x, class = class(x), y = y_name, limits = limits)
+    structure(x, class = c("cont_table", class(x)), y = y_name, limits = limits)
 }
 
 
@@ -306,12 +305,14 @@ regline <- function(formula, data){
 #' @rdname cont_table
 #' @export
 pre_print.cont_table <- function(x){
-    names_x <- paste(names(x)[1], "|", names(x)[2], sep = "")
-    names(x)[1] <- names_x
-    x <- x %>% pivot_wider(names_from = 2, values_from = 3)
-    if ("NA" %in% names(x)) x <- x %>% rename(Total = `NA`)
-    if (any(is.na(x[[1]])))
-        x[[1]] <- ifelse(is.na(x[[1]]), "Total", x[[1]])
+    if (length(x) == 3){
+        names_x <- paste(names(x)[1], "|", names(x)[2], sep = "")
+        names(x)[1] <- names_x
+        x <- x %>% pivot_wider(names_from = 2, values_from = 3)
+        if ("NA" %in% names(x)) x <- x %>% rename(Total = `NA`)
+        if (any(is.na(x[[1]])))
+            x[[1]] <- ifelse(is.na(x[[1]]), "Total", x[[1]])
+    }
     x
 }
 

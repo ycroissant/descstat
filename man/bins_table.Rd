@@ -2,7 +2,7 @@
 % Please edit documentation in R/bins_table.R
 \name{bins_table}
 \alias{bins_table}
-\title{Histograms}
+\title{Bins table}
 \usage{
 bins_table(
   data,

@@ -1,4 +1,4 @@
-#' Histograms
+#' Bins table
 #'
 #' Compute the counts for each class of  a numerical variable
 #' 

@@ -46,7 +46,7 @@ tables can be constructed with `descstat`:
 
 - `freq_table` for frequency tables, suitable for factors or integer
   numerical series,
-- `bins_table` for histogram tables, suitable for numerical series,
+- `bins_table` for bins tables, suitable for numerical series,
   either provided as a numeric or as a factor containing numerical
   classes,
 - `cont_table` for contingency tables of two series.
@@ -213,13 +213,13 @@ cld %>% pre_plot(plot = "cumulative") %>%
     labs(x = "number of children", y = "cumulative frequency")
 ```
 
-# Histogram tables
+# Bins tables
 
 
-`descstat::bins_table` computes an histogram table, *ie* a table that
+`descstat::bins_table` computes a bins table, *ie* a table that
 contains the frequencies for different classes of a numerical
 series. This numerical series can either be numerical or coded as a
-class in the original (raw) tibble. 
+class in the original (raw) tibble.
 
 For example, the `wages` data set contains two series called `wage`
 and `size` which respectively indicate the class of wages and the
@@ -238,7 +238,7 @@ wages %>% count(size)
 wages %>% freq_table(size)
 ```
 
-## Creating histogram tables
+## Creating bins tables
 
 The `bins_table` function provides a richer interface. Firstly, it
 returns a series called `x` which is the center of the
@@ -387,7 +387,7 @@ wages2 %>% select(wage) %>%
            ct = cls2val(wage, 0.5, xfirst = 5, xlast = 100))
 ```
 
-## Ploting histogram tables
+## Ploting bins tables
 
 
 `ggplot` provides three geoms to plot the distribution of a numerical

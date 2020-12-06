@@ -1,18 +1,18 @@
 #' Put a tibble in form to plot
 #'
-#' Convert a tibble built using hist_table in a shape that make it
-#' easy to plot
+#' Convert a tibble built using `freq_table`, `bins_table` or
+#' `cont_table` in a shape that make it easy to plot
 #'
 #' 
 #' @name pre_plot
 #' @aliases pre_plot
-#' @param x a tibble returned by the `hist_table` function, it should
-#'     contains the center of the classes (`x`) and at least one
-#'     measure of the frequencies or densities (one of `f`, `n`, `p`,
-#'     `d`)
+#' @param x a tibble returned by any of the `freq_table`, `bins_table`
+#'     or `cont_table` function, which should contain the center of the
+#'     classes (`x`) and at least one measure of the frequencies or
+#'     densities (one of `f`, `n`, `p`, `d`)
 #' @param y mandatory argument if the tibble contains more than one
 #'     frequency or density
-#' @param plot for object of class `hist_table` one of `histogram`
+#' @param plot for object of class `bins_table` one of `histogram`
 #'     (the default) and `freqpoly` : in the first case a tibble is
 #'     returned with columns `x`, `y`, `xend`, `yend` and in the
 #'     second case `x` and `y` ; for object of class `freq_table` one
@@ -28,7 +28,7 @@
 #' @examples
 #' library("ggplot2")
 #' pad <- padova %>%
-#'        hist_table(price, breaks = c(100, 200, 300, 400, 500, 1000),
+#'        bins_table(price, breaks = c(100, 200, 300, 400, 500, 1000),
 #'        right = TRUE, cols = "Npd")
 #' pad %>% pre_plot(y = "d") %>% ggplot() + geom_polygon(aes(x, y))
 #' pad %>% pre_plot(y = "d", plot = "freqpoly") %>%
@@ -44,7 +44,7 @@ pre_plot <- function(x, y = NULL, plot = NULL, ...)
 
 #' @rdname pre_plot
 #' @export
-pre_plot.hist_table <- function(x, y = NULL,
+pre_plot.bins_table <- function(x, y = NULL,
                                 plot = c("histogram", "freqpoly", "lorenz"), ...){
     plot <- match.arg(plot)
     data <- x
@@ -112,7 +112,7 @@ pre_plot.hist_table <- function(x, y = NULL,
             filter(! is.na(.data$cls)) %>%
             tidyr::pivot_wider(names_from = .data$axe, values_from = .data$value)
     }
-    structure(data, class = c("hist_table", class(data)))
+    structure(data, class = c("bins_table", class(data)))
 }
 
 #' @rdname pre_plot

@@ -13,7 +13,7 @@ specifically, three kind of tables can be constructed:
 
 - `freq_table` for frequency tables, suitable for factors or integer
   numerical series,
-- `hist_table` for histogram tables, suitable for numerical series,
+- `bins_table` for bins tables, suitable for numerical series,
   either provided as a numeric or as a factor containing numerical
   classes,
 - `cont_table` for contingency tables of two series.

@@ -2,8 +2,8 @@
 #'
 #' Compute the counts for each class of  a numerical variable
 #' 
-#' @name hist_table
-#' @aliases hist_table
+#' @name bins_table
+#' @aliases bins_table
 #' @param data un tibble
 #' @param x a numerical series (either numerical values or numerical
 #'     classes)
@@ -36,16 +36,16 @@
 #' @examples
 #'
 #' # in table padova, price is a numeric variable, a vector of breaks should be provided
-#' padova %>% hist_table(price, breaks = c(50, 100, 150, 200, 250, 300, 350, 400),
+#' padova %>% bins_table(price, breaks = c(50, 100, 150, 200, 250, 300, 350, 400),
 #'                       right = TRUE)
-#' padova %>% hist_table(price, breaks = c(50, 100, 150, 200, 250, 300, 350, 400),
+#' padova %>% bins_table(price, breaks = c(50, 100, 150, 200, 250, 300, 350, 400),
 #'                       right = TRUE, cols = "fd", vals = "xa")
 #' # in table wages, wage  is a factor that represents the classes
-#' wages %>% hist_table(wage, "d")
+#' wages %>% bins_table(wage, "d")
 #' # a breaks argument is provided to reduce the number of classes
-#' wages %>% hist_table(wage, breaks = c(10, 20, 30, 40, 50))
+#' wages %>% bins_table(wage, breaks = c(10, 20, 30, 40, 50))
 #' 
-hist_table <- function(data, x, cols = "n", vals = "x",
+bins_table <- function(data, x, cols = "n", vals = "x",
                        weights = NULL, breaks = NULL,
                        xfirst = NULL, xlast = NULL, right = NULL,
                        total = FALSE, wlast = NULL){
@@ -142,7 +142,7 @@ hist_table <- function(data, x, cols = "n", vals = "x",
                       names(res)) %>% na.omit %>% sort
     vals_pos <- match(c("x", "l", "a", "u"), names(res)) %>% na.omit %>% sort
     res <- res %>% select({{ x }}, all_of(c(vals_pos, cols_pos)))
-    # TODO how to add a total in an hist_table
+    # TODO how to add a total in an bins_table
     if (total){
         lowcaps <- select(res, matches("^[nfp]{1}$", ignore.case = FALSE))
         # The series is a factor for which a Total level should be added
@@ -153,17 +153,17 @@ hist_table <- function(data, x, cols = "n", vals = "x",
         res <- res %>% bind_rows(total_low)
     }
 
-    structure(res, class = c("hist_table", class(res)))
+    structure(res, class = c("bins_table", class(res)))
 }
     
-#' Methods for hist_table objects
+#' Methods for bins_table objects
 #'
 #' Functions and methods to compute the median, the mean, the mode,
-#' the medial and quantiles for hist_table objects
+#' the medial and quantiles for bins_table objects
 #' 
-#' @name hist_table.methods
-#' @aliases hist_table.methods
-#' @param x a hist_table object,
+#' @name bins_table.methods
+#' @aliases bins_table.methods
+#' @param x a bins_table object,
 #' @param y for the quantile method, one of `"value"` or `"mass"`
 #' @param center for the `madev` method, this can equal `"median"`
 #'     (the default) or `"mean"`
@@ -176,13 +176,13 @@ hist_table <- function(data, x, cols = "n", vals = "x",
 #' @importFrom purrr map_dbl map_dfr
 #' @author Yves Croissant
 #' @examples
-#' z <- wages %>% hist_table(wage)
+#' z <- wages %>% bins_table(wage)
 #' z %>% median
 #' z %>% medial
 #' z %>% modval
 #' z %>% quantile(probs = c(0.25, 0.5, 0.75))
 #' z %>% quantile(y = "mass", probs = c(0.25, 0.5, 0.75))
-mean.hist_table <- function(x, ...){
+mean.bins_table <- function(x, ...){
     xfirst <- x$x[1]
     xlast <- rev(x$x)[1]
     if (! "f" %in% names(x)){
@@ -192,9 +192,9 @@ mean.hist_table <- function(x, ...){
     mean(x[[1]], x$f, xlast = xlast, xfirst = xfirst)
 }
 
-#' @rdname hist_table.methods
+#' @rdname bins_table.methods
 #' @export
-variance.hist_table <- function(x, ...){
+variance.bins_table <- function(x, ...){
     x <- x %>% rename(cls = 1)
     if (! "f" %in% names(x)){
         cf <- compute_freq(x)
@@ -205,14 +205,14 @@ variance.hist_table <- function(x, ...){
     variance(x[[1]], x$f, xlast = xlast, xfirst = xfirst)
 }
 
-#' @rdname hist_table.methods
+#' @rdname bins_table.methods
 #' @export
-stdev.hist_table <- function(x, ...)
+stdev.bins_table <- function(x, ...)
     x %>% variance %>% sqrt
 
-#' @rdname hist_table.methods
+#' @rdname bins_table.methods
 #' @export
-madev.hist_table <- function(x, center = c("median", "mean"), ...){
+madev.bins_table <- function(x, center = c("median", "mean"), ...){
     center <- match.arg(center)
     xfirst <- (x$x)[1]
     xlast <- rev(x$x)[1]
@@ -221,9 +221,9 @@ madev.hist_table <- function(x, center = c("median", "mean"), ...){
     madev(x[[1]], w = x$f, center = center, xlast = xlast, xfirst = xfirst)
 }
 
-#' @rdname hist_table.methods
+#' @rdname bins_table.methods
 #' @export
-modval.hist_table <- function(x, ...){
+modval.bins_table <- function(x, ...){
     xfirst <- (x$x)[1]
     xlast <- rev(x$x)[1]
     if (! "d" %in% names(x))
@@ -232,9 +232,9 @@ modval.hist_table <- function(x, ...){
     x[pos, , drop =FALSE]
 }
         
-#' @rdname hist_table.methods
+#' @rdname bins_table.methods
 #' @export
-quantile.hist_table <- function(x, y = c("value", "mass"), probs = c(0.25, 0.5, 0.75), ...){
+quantile.bins_table <- function(x, y = c("value", "mass"), probs = c(0.25, 0.5, 0.75), ...){
     y <- match.arg(y)
     if (! "f" %in% names(x)){
         cf <- compute_freq(x)
@@ -254,25 +254,25 @@ quantile.hist_table <- function(x, y = c("value", "mass"), probs = c(0.25, 0.5, 
 }
 
 
-#' @rdname hist_table.methods
+#' @rdname bins_table.methods
 #' @export
-median.hist_table <- function(x, ..., y = c("value", "mass")){
+median.bins_table <- function(x, ..., y = c("value", "mass")){
     y <- match.arg(y)
     quantile(x, y = y, 0.5)
 }
 
 
-#' @rdname hist_table.methods
+#' @rdname bins_table.methods
 #' @export
-medial.hist_table <- function(x, ...){
+medial.bins_table <- function(x, ...){
     quantile(x, y = "mass", probs = 0.5, ...)
 }
 
 
-#' @rdname hist_table.methods
+#' @rdname bins_table.methods
 #' @export
 gini <- function(x){
-    if (! inherits(x, "hist_table")) stop("x should be a hist_table object")
+    if (! inherits(x, "bins_table")) stop("x should be a bins_table object")
     if (any(! c("F", "M") %in% names(x))){
         cf <- compute_freq(x)
         x <- x %>% mutate(f = cf)
@@ -301,7 +301,7 @@ compute_widths <- function(x, xlast = NULL, xfirst = NULL, wlast = NULL){
 }
 
 compute_freq <- function(x){
-    if (! inherits(x, "hist_table")) stop("x should be an hist_table object")
+    if (! inherits(x, "bins_table")) stop("x should be an bins_table object")
     if (! "f" %in% names(x)){
         if (any(c("f", "p", "n") %in% names(x))){
             col <- na.omit(match(c("f", "p", "n"), names(x)))[1]
@@ -323,7 +323,7 @@ compute_freq <- function(x){
 }
     
 compute_dens <- function(x, xlast = NULL, xfirst = NULL, wlast = NULL){
-    if (! inherits(x, "hist_table")) stop("x should be an hist_table object")
+    if (! inherits(x, "bins_table")) stop("x should be an bins_table object")
     if (! "d" %in% names(x)){
         f <- compute_freq(x)
         a <- compute_widths(x[[1]], xlast = xlast, xfirst = xfirst, wlast = NULL)

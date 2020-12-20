@@ -2,18 +2,12 @@
 % Please edit documentation in R/cls.R
 \name{cls2val}
 \alias{cls2val}
-\alias{cls2val.character}
-\alias{cls2val.factor}
 \alias{cls2val.cont_table}
 \title{Convert class to values}
 \usage{
 cls2val(x, pos = 0, xfirst = NULL, xlast = NULL, wlast = NULL, ...)
 
-\method{cls2val}{character}(x, pos = 0, xfirst = NULL, xlast = NULL, wlast = NULL, ...)
-
-\method{cls2val}{factor}(x, pos = 0, xfirst = NULL, xlast = NULL, wlast = NULL, ...)
-
-\method{cls2val}{cont_table}(x, pos = 0.5, ..., y = 1)
+cls2val.cont_table(x, pos = 0.5, ..., y = 1)
 }
 \arguments{
 \item{x}{a series that contains a class of values, the first and
@@ -55,6 +49,7 @@ the underlying variable
 
 # wage is a class of wage in the wages data set ; first
 # extract unique values
+library("dplyr")
 wgs <- wages \%>\% pull(wage) \%>\% levels
 # compute the lower bonds
 wgs \%>\% cls2val(0)

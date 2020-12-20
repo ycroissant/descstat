@@ -93,3 +93,22 @@ NULL
 #'
 NULL
 
+
+
+#' Income of French households
+#'
+#' bins of incomes, number and mass of income
+#' 
+#' @name income
+#' @docType data
+#' @format a tibble containing : 
+#' - bin: bin of income
+#' - number: number of households in the bin
+#' - income: mass of income in the bin
+#' 
+#' @source
+#' Impot sur le revenu par commune (IRCOM) 
+#' [site of the DGI](https://impots.gouv.fr/portail/statistiques)
+#'
+NULL
+

@@ -33,6 +33,7 @@
 #'
 #' # wage is a class of wage in the wages data set ; first
 #' # extract unique values
+#' library("dplyr")
 #' wgs <- wages %>% pull(wage) %>% levels
 #' # compute the lower bonds
 #' wgs %>% cls2val(0)
@@ -49,15 +50,9 @@
 #' wgs %>% cls2val(1, wlast = 3) %>% tail
 #' # wlast is provided, so that the range of the last class is three
 #' # times the range of the previous one
-cls2val <- function(x, pos = 0, xfirst = NULL, xlast = NULL, wlast = NULL, ...)
-    UseMethod("cls2val")
-
-
-#' @rdname cls2val
-#' @importFrom rlang .data
-#' @export
-cls2val.character <- function(x, pos = 0, xfirst = NULL, xlast = NULL, wlast = NULL, ...){
+cls2val <- function(x, pos = 0, xfirst = NULL, xlast = NULL, wlast = NULL, ...){
     K <- length(x)
+    x <- as.character(x)
     ox <- x
     if (length(unique(x)) != K){
 #        warning("no duplicated values allowed for the character method of cls2val")
@@ -102,37 +97,7 @@ cls2val.character <- function(x, pos = 0, xfirst = NULL, xlast = NULL, wlast = N
     x
 }
 
-#' @rdname cls2val
-#' @export
-cls2val.factor <- function(x, pos = 0, xfirst = NULL, xlast = NULL, wlast = NULL, ...){
-    # drop unused levels ? 
-    lev_x <- levels(x)
-    cls_val <- tibble(x = lev_x,
-                      x_center = cls2val(x = x, pos = pos, xfirst = xfirst,
-                                         xlast = xlast, wlast = wlast))
-    left_join(tibble(x = as.character(x)), cls_val, by = "x") %>% pull(.data$x_center)
-}
 
-acls2val <- function(x, pos = 0, xfirst = NULL, xlast = NULL){
-    if (! is.numeric(pos)) stop("pos should be numeric")
-    if (is.numeric(pos) & ! (pos >= 0 & pos <= 1)) stop("pos should be between 0 and 1")
-    x <- x %>% as.character %>% strsplit(",")
-    xl <- sapply(x, function(x) x[1])
-    xl <- as.numeric(substr(xl, 2, nchar(xl)))
-    xu <- sapply(x, function(x) x[2])
-    xu <- as.numeric(substr(xu, 1, nchar(xu) - 1))
-    if (! is.null(xfirst))
-        if ((xfirst >= xl & xfirst <= xu))  xl <- xfirst - (xu - xfirst)
-    if (! is.null(xlast)){
-        if ((xlast >= xl & xlast <= xu))  xu <- xl + 2 * (xlast - xl)
-        else stop("irrelevant value for xlast")
-    }
-    else{
-        if (is.infinite(xu))
-            stop("last should be set as the upper bond is infinite")
-    }
-    (1 - pos) * xl + pos * xu
-}
 
 
 #' Recode a classified variable
@@ -161,6 +126,10 @@ recut <- function(x, breaks = NULL){
     ubond <- cls2val(init_cls, 1L, wlast = Inf)
     cls_table <- tibble(x = init_cls, lbond, ubond) %>% arrange(lbond)
     init_bks <- sort(union(lbond, ubond))
+    if (length(breaks) == 1){
+        if (! breaks %in% init_bks) stop("the break value should be a bound of one of the bins")
+        breaks <- init_bks[init_bks <= breaks]
+    }
     cls_table <- cls_table %>% mutate(center = cls2val(x, 0.5))
     # min/max values of the new breaks lower/larger than the
     # min/max values of the initial breaks are not allowed
@@ -175,14 +144,14 @@ recut <- function(x, breaks = NULL){
     breaks <- sort(unique(breaks))
     dbrks <- setdiff(breaks, init_bks)
     if (length(dbrks) > 0) stop(paste(paste(sort(dbrks), collapse = ", "),
-                                ifelse(length(dbrks) == 1, "is", "are"),
+                                      ifelse(length(dbrks) == 1, "is", "are"),
                                 paste("provided in the breaks argument but ",
                                       ifelse(length(dbrks) == 1, "is", "are"),
                                       " not part of the  initial set of breaks", sep = "")),
                                 sep = "")
     cls_table <- cls_table %>% mutate(new_cls = cut(.data$center, breaks, right = right)) %>%
         select(x, .data$new_cls)
-    tibble(x = x) %>% left_join(cls_table, by = "x") %>% pull(.data$new_cls)
+    tibble(x = x) %>% left_join(cls_table, by = "x") %>% pull(.data$new_cls) %>% as.character
 }
 
 #' @rdname cls2val
@@ -195,3 +164,36 @@ cls2val.cont_table <- function(x, pos = 0.5, ..., y = 1){
     x_val <- cls2val(x[[y]], pos = pos, xfirst = lim$xfirst, xlast = lim$xlast, wlast = lim$wlast)
     tibble(cls = x_cls, val = x_val) %>% unique %>% set_names(c(nms_x, paste(nms_x, "val", sep = "_")))
 }
+
+
+# take a class vector (a character or a factor) and returns either a
+# tibble containing the 4 elements of this string or NULL if the
+# string is not well formated
+cls2lims <- function(x){
+    cls <- as.character(x)
+    x <- tibble(cls = cls)
+    a_float <- "[-+]?[0-9]*\\.?[0-9]*[eE]?[-+]?[0-9]+"
+    a_pattern <- paste("^", "(\\[|\\()", "(", a_float, "),(", a_float, "|Inf)", "(\\]|\\))", "$", sep = "")
+    x <- x %>%
+        tidyr::extract(cls,
+                       c("left", "first", "last", "right"),
+                       a_pattern,
+                       remove = FALSE, convert = TRUE)
+    za <- x %>% unique %>% filter(is.na(.data$left)) %>% pull(cls)
+    if (length(za)) NULL else x
+}
+
+
+# get the numerical series, which is either the first column if it is
+# numeric or the one called xq
+get_numval <- function(x){
+    x <- x %>% na.omit
+    if (is.numeric(x[[1]])) x[[1]]
+    else x$x
+}
+
+# order a vector of bins
+order_bin <- function(x) order(cls2lims(x)$first)
+
+
+

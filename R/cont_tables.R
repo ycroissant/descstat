@@ -42,9 +42,10 @@
 #' @importFrom tidyr pivot_wider
 #' @importFrom rlang set_names
 #' @importFrom stats var
+#' @importFrom dplyr left_join rename lag
 #' @author Yves Croissant
 #' @examples
-#'
+#' library("dplyr")
 #' cont_table(employment, education, sex)
 #' cont_table(employment, education, sex, weights = weights)
 #' cont_table(employment, education, sex) %>% conditional(sex)
@@ -200,7 +201,7 @@ total.omit <- function(x) x[ ! (is.na(x[[1]]) | is.na(x[[2]])) &
 #' @rdname cont_table
 #' @export
 joint <- function(x)
-    x %>% total.omit %>% mutate(n = n / sum(n)) %>% rename(f = n)
+    x %>% total.omit %>% mutate(n = .data$n / sum(.data$n)) %>% rename(f = .data$n)
 
 #' @rdname cont_table
 #' @export
@@ -222,7 +223,7 @@ conditional <- function(x, y = NULL){
     }
     cond_name <- setdiff(names(x)[1:2], y_name)
     x <- x %>% total.omit %>% group_by(!! as.symbol(cond_name)) %>%
-        mutate(n = n / sum(n)) %>% ungroup %>% rename(f = n)
+        mutate(n = .data$n / sum(.data$n)) %>% ungroup %>% rename(f = .data$n)
     structure(x, class = c("cont_table", class(x)), y = y_name, limits = limits)
 }
 
@@ -230,7 +231,7 @@ conditional <- function(x, y = NULL){
 #' @export
 marginal <- function(x, y = NULL){
     limits <- attr(x, "limits")
-    N <- x %>% total.omit %>% summarise(N = sum(n)) %>% pull(N)
+    N <- x %>% total.omit %>% summarise(N = sum(.data$n)) %>% pull(N)
     y_name <- deparse(substitute(y))
     if (y_name == "NULL") y_name <- NA
     if (is.na(y_name)) stop("the variable should be indicated")
@@ -249,7 +250,7 @@ marginal <- function(x, y = NULL){
 
     y_ord <- tibble(unique(na.omit(x[[y_name]]))) %>% set_names(y_name)
     x <- x %>% total.omit %>% group_by(!! as.symbol(y_name)) %>%
-        summarise(f = sum(n)) %>% mutate(f = .data$f / sum(.data$f))
+        summarise(f = sum(.data$n)) %>% mutate(f = .data$f / sum(.data$f))
     x <- y_ord %>% left_join(x, by = y_name)    
     structure(x, class = c("cont_table", class(x)), y = y_name, limits = limits)
 }
@@ -265,7 +266,7 @@ var_decomp <- function(x, y){
     m_x <- x %>% conditional(y) %>% mean
     s2_x <- x %>% conditional(y) %>% variance
     f_y <- x %>% marginal(cond)
-    val_y <- x %>% cls2val(y = cond_pos)
+    val_y <- x %>% cls2val.cont_table(y = cond_pos)
     names(m_x)[2] <- "mean"#paste("mean", var_name, sep = "_")
     names(s2_x)[2] <- "var"#paste("var", var_name, sep = "_")
     x <- val_y %>% left_join(f_y, by = cond) %>%

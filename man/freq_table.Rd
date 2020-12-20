@@ -10,10 +10,18 @@ freq_table(
   data,
   x,
   cols = "n",
+  vals = NULL,
   weights = NULL,
-  na.rm = FALSE,
   total = FALSE,
-  max = NA
+  max = NULL,
+  breaks = NULL,
+  right = NULL,
+  xfirst = NULL,
+  xlast = NULL,
+  wlast = NULL,
+  freq = NULL,
+  mass = NULL,
+  center = NULL
 )
 
 \method{format}{freq_table}(x, ..., n = NULL, width = NULL, n_extra = NULL)
@@ -23,51 +31,78 @@ freq_table(
 \arguments{
 \item{data}{a tibble}
 
-\item{x}{a factor or a discrete numerical variable}
+\item{x}{a categorical or numerical series}
 
 \item{cols}{a string containing \code{n} for counts, \code{f} for relative
-frequencies and \code{p} for percentages : cumulative series are
-obtained using the same letters in upper caps}
+frequencies, \code{p} for percentages and \code{m} for mass frequencies.
+Cumulative series are obtained using the same letters in upper
+caps}
 
-\item{weights}{a series that contain the weights than enables the
+\item{vals}{a character containing letters indicating the values of
+the variable that should be returned ; \code{x} for the center of
+the class, \code{l} and \code{u} for the lower and upper limit of the
+class, \code{a} for the range}
+
+\item{weights}{a series that contain the weights tant enables the
 sample to mimic the population}
 
-\item{na.rm}{with the default value \code{TRUE}, missing values of \code{x}
-are removed l'échantillon}
-
-\item{total}{if \code{TRUE} (the default value), a total is added to the
-table}
+\item{total}{a logical indicating whether the total should be
+returned}
 
 \item{max}{if the series is a discrete numerical value, this
 argument indicates that all the values greater than \code{max}
 should be merged in the same modality}
 
-\item{...}{other arguments (for \code{format})}
+\item{breaks}{a numerical vector of class limits}
 
-\item{n}{the number of rows to print (passed to \code{format})}
+\item{right}{a logical indicating whether classes should be closed
+(\code{right = TRUE}) or open (\code{right = FALSE}) on the right}
 
-\item{width}{the width of the table to be printed (passed to
-\code{format})}
+\item{xfirst}{a numeric indicating the value of the center of the
+first class}
 
-\item{n_extra}{the number of extra columns described (passed to
-\code{format})}
+\item{xlast}{a numeric indicating the center of the last class}
+
+\item{wlast}{if \code{xlast} is not set, the width of the last class is
+set to the one of the second to last width times this parameter}
+
+\item{freq}{a series that contains the frequencies (only relevant
+if \code{data} is already a frequency table)}
+
+\item{mass}{a series that contains the masses of the variable (only
+relevant if \code{data} is already a frequency table)}
+
+\item{center}{a series that contains the center of the class of the
+variable (only relevant if \code{data} is already a frequency table)}
+
+\item{...}{argument passed to \code{format.tbl}}
+
+\item{n}{argument passed to \code{format.tbl}}
+
+\item{width}{argument passed to \code{format.tbl}}
+
+\item{n_extra}{argument passed to \code{format.tbl}}
 }
 \value{
-an object of class \code{freq_table} which inherits from
-\code{tbl_df}
+a tibble containing the specified values of \code{vals} and
+\code{cols}
 }
 \description{
-A frequency table is suitable for a factor or for a discrete
-numerical variable. It returns the modalities/values and the
-associated frequencies
+Compute the frequency table of a categorical or a quantitative series
 }
 \examples{
 
-freq_table(employment, activity, "n")
-freq_table(employment, activity, "nN")
-freq_table(employment, activity, "fF", weights = weights)
-freq_table(rgp, children, "npNP")
-freq_table(rgp, children, "npNP", max = 5)
+# in table padova, price is a numeric variable, a vector of breaks should be provided
+library("dplyr")
+padova \%>\% freq_table(price, breaks = c(50, 100, 150, 200, 250, 300, 350, 400),
+                      right = TRUE)
+padova \%>\% freq_table(price, breaks = c(50, 100, 150, 200, 250, 300, 350, 400),
+                      right = TRUE, cols = "fd", vals = "xa")
+# in table wages, wage  is a factor that represents the classes
+wages \%>\% freq_table(wage, "d")
+# a breaks argument is provided to reduce the number of classes
+wages \%>\% freq_table(wage, breaks = c(10, 20, 30, 40, 50))
+
 }
 \author{
 Yves Croissant

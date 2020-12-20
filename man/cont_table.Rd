@@ -115,7 +115,7 @@ provided. \code{regline} computes the regression line and \code{var_decomp}
 the variance decomposition.
 }
 \examples{
-
+library("dplyr")
 cont_table(employment, education, sex)
 cont_table(employment, education, sex, weights = weights)
 cont_table(employment, education, sex) \%>\% conditional(sex)

@@ -46,7 +46,7 @@ tables can be constructed with `descstat`:
 
 - `freq_table` for frequency tables, suitable for factors or integer
   numerical series,
-- `bins_table` for bins tables, suitable for numerical series,
+- `freq_table` for bins tables, suitable for numerical series,
   either provided as a numeric or as a factor containing numerical
   classes,
 - `cont_table` for contingency tables of two series.
@@ -56,6 +56,7 @@ the pipe operator can be used and that the series can be selected
 without quotes.
 
 ```{r }
+library("dplyr")
 library("ggplot2")
 library("descstat")
 ```
@@ -216,7 +217,7 @@ cld %>% pre_plot(plot = "cumulative") %>%
 # Bins tables
 
 
-`descstat::bins_table` computes a bins table, *ie* a table that
+`descstat::freq_table` computes a bins table, *ie* a table that
 contains the frequencies for different classes of a numerical
 series. This numerical series can either be numerical or coded as a
 class in the original (raw) tibble.
@@ -240,21 +241,21 @@ wages %>% freq_table(size)
 
 ## Creating bins tables
 
-The `bins_table` function provides a richer interface. Firstly, it
+The `freq_table` function provides a richer interface. Firstly, it
 returns a series called `x` which is the center of the
 classes. Secondly, a `break` argument is provided, which is a
 numerical vector that can be used to reduce the number of classes:
 
 ```{r }
-wages %>% bins_table(size, breaks = c(20, 250))
+wages %>% freq_table(size, breaks = c(20, 250))
 ```
 
 or to create classes from numerical values:
 
 ```{r }
 padova %>% pull(price) %>% range
-padova %>% bins_table(price, breaks = c(250, 500, 750))
-padova %>% bins_table(price, breaks = c(30, 250, 500, 750, 1000))
+padova %>% freq_table(price, breaks = c(250, 500, 750))
+padova %>% freq_table(price, breaks = c(30, 250, 500, 750, 1000))
 ```
 
 Note that in this latter case, the first (last) values of `breaks`
@@ -270,7 +271,7 @@ computation of counts, frequencies and percentage and the cumulative
 values are obtained using upper caps.
 
 ```{r }
-wages %>% bins_table(size, cols = "nFp", breaks = c(20, 100, 250))
+wages %>% freq_table(size, cols = "nFp", breaks = c(20, 100, 250))
 ```
 
 `cols` can also contain a `d` for density, which is the frequency
@@ -279,14 +280,14 @@ product of the frequency and the value of the variable) and `M` which
 is the cumulated mass.
 
 ```{r }
-wages %>% bins_table(size, cols = "dmM", breaks = c(20, 100, 250))
+wages %>% freq_table(size, cols = "dmM", breaks = c(20, 100, 250))
 ```
 
 A total can be computed for `f`, `n` and `p`, as for `freq_table`
 objects.
 
 ```{r }
-wages %>% bins_table(size, cols = "dMfnFp", breaks = c(20, 100, 250),
+wages %>% freq_table(size, cols = "dMfnFp", breaks = c(20, 100, 250),
                      total = TRUE)
 ```
 
@@ -296,7 +297,7 @@ For the computation of descriptive statistics, classes should be
 replaced by values. By the default, the center of the class is used,
 which means that the computation is done as if all the observations of
 the class had a value equal to its center. This value is returned as
-`x` while using `bins_table`. Three arguments control what happens for
+`x` while using `freq_table`. Three arguments control what happens for
 the first and the last class:
 
 - a specific value for the first class can be indicated using the
@@ -311,7 +312,7 @@ To set the center of the first class to `10` (and not to `10.5`), we
 can use:
 
 ```{r }
-wages %>% bins_table(size, breaks = c(20, 100, 250), xfirst = 10)
+wages %>% freq_table(size, breaks = c(20, 100, 250), xfirst = 10)
 ```
 
 To set the center of the last class to `400` we can either set
@@ -319,11 +320,11 @@ To set the center of the last class to `400` we can either set
 should be twice the one of the before last:
 
 ```{r results = 'hide'}
-wages %>% bins_table(size, breaks = c(20, 100, 250), xlast = 400)
+wages %>% freq_table(size, breaks = c(20, 100, 250), xlast = 400)
 ```
 
 ```{r }
-wages %>% bins_table(size, breaks = c(20, 100, 250), wlast = 2)
+wages %>% freq_table(size, breaks = c(20, 100, 250), wlast = 2)
 ```
 
 other values of the variable can be included in the table using the
@@ -335,12 +336,12 @@ letters:
 - `a` for the width of the class.
 
 ```{r }
-wages %>% bins_table(size, vals = "xlua", cols = "p", breaks = c(20, 100, 250), wlast = 2)
+wages %>% freq_table(size, vals = "xlua", cols = "p", breaks = c(20, 100, 250), wlast = 2)
 ```
 
 ## Under the hood: converting classes to values
 
-`bins_table` internally calls the function `cls2val` which turns the
+`freq_table` internally calls the function `cls2val` which turns the
 classes into values of the variable. Its main argument is a factor (or
 a character) containing classes of numerical values, *ie* a string of
 the form `[a,b)` or `(a,b]` where `a` and `b` are respectively the
@@ -405,17 +406,17 @@ padova %>% ggplot(aes(price)) +
 
 These geoms can be used when individual numerical data are available,
 but not when only classes are observed. A `pre_plot` method is
-provided for `bins_table` objects, with the `plot` argument either
+provided for `freq_table` objects, with the `plot` argument either
 equal to `histogram` (the default) or `freqpoly`. The resulting table
 contains columns called `x` and `y` and can be ploted using
 `geom_polygon` for an histogram and `geom_line` for a frequency
 polygon.
 
 ```{r }
-wages %>% bins_table(wage, "d", breaks = c(10, 20, 30, 40, 50)) %>%
+wages %>% freq_table(wage, "d", breaks = c(10, 20, 30, 40, 50)) %>%
     pre_plot(plot = "histogram") %>%
     ggplot(aes(x, y)) + geom_polygon(fill = "white", color = "black")
-wages %>% bins_table(wage, "d", breaks = c(10, 20, 30, 40, 50)) %>%
+wages %>% freq_table(wage, "d", breaks = c(10, 20, 30, 40, 50)) %>%
     pre_plot(plot = "freqpoly") %>%
     ggplot(aes(x, y)) + geom_line()
 ```
@@ -425,7 +426,7 @@ case, the table should contain `F` and `M`.
 
 
 ```{r }
-lzc <- wages %>% bins_table(wage, "MF", breaks = c(10, 20, 30, 40, 50)) %>%
+lzc <- wages %>% freq_table(wage, "MF", breaks = c(10, 20, 30, 40, 50)) %>%
     pre_plot(plot = "lorenz")
 lzc
 ```
@@ -448,9 +449,9 @@ lzc %>% ggplot(aes(F, M)) +
 ## Computing descriptive statistics
 
 Descriptive statistics can easily be computed applying functions to
-`bins_table` objects. The problem is that only a few statistical
+`freq_table` objects. The problem is that only a few statistical
 functions of the `base` and the `stats` packages are generic. For
-these, methods where written for `bins_table` objects, for the other
+these, methods where written for `freq_table` objects, for the other
 ones, we had to create new functions.
 
 ```{r echo = FALSE}
@@ -471,7 +472,7 @@ To compute the central values statistics of the distribution of
 `wages` we use:
 
 ```{r collapse = TRUE}
-z <- wages %>% bins_table(wage)
+z <- wages %>% freq_table(wage)
 z %>% mean
 z %>% median
 z %>% modval
@@ -575,7 +576,7 @@ A `weights` argument is used to mimic the population. For example, the
 employment %>% cont_table(age, sex, weights = weights, total = TRUE)
 ```
 
-as for `bins_table`, central values for the first and the last class
+as for `freq_table`, central values for the first and the last class
 can be set using arguments `xfirst#`, `xlast#` and `wlast#`, where `#`
 is equal to 1 or 2 for the first and the second variable indicated in
 the `cont_table` function.
@@ -609,7 +610,7 @@ one.
   
 The `joint`, `marginal` and `conditional` functions return these three
 distributions. The last two require an argument `y` which is one of the
-two variables of the `bins_table` object.
+two variables of the `freq_table` object.
 
 ```{r }
 wht <- wages2 %>% cont_table(size, wage)
@@ -637,10 +638,10 @@ wht %>% marginal(size) %>% mean
 wht %>% marginal(size) %>% stdev
 ```
 or even more simply considering the univariate distribution computed
-by `bins_table`:
+by `freq_table`:
 
 ```{r }
-wages2 %>% bins_table(size) %>% mean
+wages2 %>% freq_table(size) %>% mean
 ```
 
 The `mean`, `stdev` and `variance` methods are actually only usefull

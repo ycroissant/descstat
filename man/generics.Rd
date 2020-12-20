@@ -9,17 +9,13 @@
 \alias{madev}
 \alias{modval}
 \alias{medial}
+\alias{kurtosis}
+\alias{skewness}
 \alias{variance.default}
-\alias{variance.numeric}
 \alias{stdev.default}
-\alias{stdev.numeric}
 \alias{madev.default}
-\alias{quantile.character}
-\alias{quantile.factor}
-\alias{median.character}
-\alias{median.factor}
-\alias{mean.character}
-\alias{mean.factor}
+\alias{skewness.default}
+\alias{kurtosis.default}
 \alias{pre_print}
 \title{Generic functions provided by the statecoaes package}
 \usage{
@@ -37,34 +33,19 @@ modval(x, ...)
 
 medial(x, ...)
 
-\method{variance}{default}(x, w = NULL, xlast = NULL, xfirst = NULL, ...)
+kurtosis(x, ...)
 
-\method{variance}{numeric}(x, w = NULL, ...)
+skewness(x, ...)
 
-\method{stdev}{default}(x, w = NULL, xlast = NULL, xfirst = NULL, ...)
+\method{variance}{default}(x, w = NULL, ...)
 
-\method{stdev}{numeric}(x, w = NULL, ...)
+\method{stdev}{default}(x, w = NULL, ...)
 
-\method{madev}{default}(
-  x,
-  w = NULL,
-  center = c("median", "mean"),
-  xlast = NULL,
-  xfirst = NULL,
-  ...
-)
+\method{madev}{default}(x, w = NULL, center = c("median", "mean"), ...)
 
-\method{quantile}{character}(x, w, probs = c(0.25, 0.5, 0.75), xlast = NULL, xfirst = NULL, ...)
+\method{skewness}{default}(x, ...)
 
-\method{quantile}{factor}(x, w, probs = c(0.25, 0.5, 0.75), xlast = NULL, xfirst = NULL, ...)
-
-\method{median}{character}(x, na.rm, w, xlast = NULL, xfirst = NULL, ...)
-
-\method{median}{factor}(x, na.rm, w, xlast = NULL, xfirst = NULL, ...)
-
-\method{mean}{character}(x, w, xlast = NULL, xfirst = NULL, ...)
-
-\method{mean}{factor}(x, w, xlast = NULL, xfirst = NULL, ...)
+\method{kurtosis}{default}(x, ...)
 
 pre_print(x)
 }
@@ -76,17 +57,8 @@ classes}
 
 \item{w}{a vector of weights}
 
-\item{xlast}{the center of the last class}
-
-\item{xfirst}{the center of the first class}
-
 \item{center}{the center value used to compute the deviations, one
 of \code{"median"} or \code{"mean"}}
-
-\item{probs}{a vector of probabilities for the quantile method}
-
-\item{na.rm}{should the missing values be stripped before the
-computation of the statistic,}
 }
 \value{
 a numeric or a tibble

@@ -6,13 +6,13 @@
 #' 
 #' @name pre_plot
 #' @aliases pre_plot
-#' @param x a tibble returned by any of the `freq_table`, `bins_table`
+#' @param x a tibble returned by any of the `freq_table`, `freq_table`
 #'     or `cont_table` function, which should contain the center of the
 #'     classes (`x`) and at least one measure of the frequencies or
 #'     densities (one of `f`, `n`, `p`, `d`)
 #' @param y mandatory argument if the tibble contains more than one
 #'     frequency or density
-#' @param plot for object of class `bins_table` one of `histogram`
+#' @param plot for object of class `freq_table` one of `histogram`
 #'     (the default) and `freqpoly` : in the first case a tibble is
 #'     returned with columns `x`, `y`, `xend`, `yend` and in the
 #'     second case `x` and `y` ; for object of class `freq_table` one
@@ -23,19 +23,21 @@
 #' @return a tibble
 #' @importFrom dplyr desc as_tibble transmute
 #' @importFrom purrr map_df
+#' @importFrom tidyr separate pivot_wider pivot_longer
 #' @export
 #' @author Yves Croissant
 #' @examples
+#' library("dplyr")
 #' library("ggplot2")
 #' pad <- padova %>%
-#'        bins_table(price, breaks = c(100, 200, 300, 400, 500, 1000),
+#'        freq_table(price, breaks = c(100, 200, 300, 400, 500, 1000),
 #'        right = TRUE, cols = "Npd")
 #' pad %>% pre_plot(y = "d") %>% ggplot() + geom_polygon(aes(x, y))
 #' pad %>% pre_plot(y = "d", plot = "freqpoly") %>%
 #' ggplot() + geom_line(aes(x, y))
 #' ## A pie chart
 #' wages %>% freq_table(sector, "p", total = FALSE) %>%
-#'   pre_plot("p") %>% ggplot(aes(x = 2, y = p, fill = sector)) +
+#'   pre_plot("p", plot = "banner") %>% ggplot(aes(x = 2, y = p, fill = sector)) +
 #'   geom_col() + geom_text(aes(y = ypos, label = round(p))) +
 #'   coord_polar(theta = "y")
 #' 
@@ -44,8 +46,8 @@ pre_plot <- function(x, y = NULL, plot = NULL, ...)
 
 #' @rdname pre_plot
 #' @export
-pre_plot.bins_table <- function(x, y = NULL,
-                                plot = c("histogram", "freqpoly", "lorenz"), ...){
+pre_plot.freq_table <- function(x, y = NULL,
+                                plot = c("histogram", "freqpoly", "lorenz", "banner", "cumulative"), ...){
     plot <- match.arg(plot)
     data <- x
     if (plot %in% c("histogram", "freqpoly")){
@@ -110,27 +112,20 @@ pre_plot.bins_table <- function(x, y = NULL,
                    pts = .data$pos %in% c("nw", "ne")) %>%
             arrange(.data$cls, .data$pos) %>%
             filter(! is.na(.data$cls)) %>%
-            tidyr::pivot_wider(names_from = .data$axe, values_from = .data$value)
+            pivot_wider(names_from = .data$axe, values_from = .data$value)
     }
-    structure(data, class = c("bins_table", class(data)))
-}
-
-#' @rdname pre_plot
-#' @export
-pre_plot.freq_table <- function(x, y = NULL, plot = c("banner", "cumulative"), ...){
-    plot <- match.arg(plot)
     if (plot == "banner"){
-        if (is.null(y)) y <- names(x)[2]
-        x <- x %>% select(1, all_of(y))
-        z <- names(x)[1]
-        x <- x %>% total.omit %>%
+        if (is.null(y)) y <- names(data)[2]
+        data <- data %>% select(1, all_of(y))
+        z <- names(data)[1]
+        data <- data %>% total.omit %>%
             mutate(ypos = cumsum(!! as.symbol(y)) - 0.5 * !! as.symbol(y)) %>% 
             map_df(rev)
-        x[[1]] <- factor(x[[1]], levels = x[[1]])
+        data[[1]] <- factor(data[[1]], levels = data[[1]])
     }
     if (plot == "cumulative"){
-        if (! "F" %in% names(x)) stop("the frequency table should contain F")
-        x <- x %>% select(x = 1, y = F) %>% 
+        if (! "F" %in% names(data)) stop("the frequency table should contain F")
+        data <- data %>% select(x = 1, y = F) %>% 
             mutate(ly = lag(y), lx =  lag(x)) %>%
             transmute(x_hor = x, xend_hor = lag(x), y_hor = y, yend_hor = y,
                       x_vert = lag(x), xend_vert = lag(x), y_vert = y, yend_vert = lag(y)) %>%
@@ -140,7 +135,7 @@ pre_plot.freq_table <- function(x, y = NULL, plot = c("banner", "cumulative"), .
             pivot_wider(names_from = .data$coord, values_from = .data$value) %>%
             select(- .data$id)
     }
-    x
+    structure(data, class = c("freq_table", class(data)))
 }
 
 #' @rdname pre_plot

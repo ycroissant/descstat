@@ -79,10 +79,8 @@ variance.default <- function(x, w = NULL, ...){
 #' @rdname generics
 #' @export
 gmean.default <- function(x, r = 1, ...){
-    if (r == 0){
-        exp(mean(log(x)))
-    }
-    mean(x ^ r, w) ^ (1 / r)
+    if (r == 0) exp(mean(log(x)))
+    else mean(x ^ r) ^ (1 / r)
 }
 
 

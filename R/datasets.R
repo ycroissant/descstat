@@ -108,7 +108,7 @@ NULL
 #' 
 #' @source
 #' Impot sur le revenu par commune (IRCOM) 
-#' [site of the DGI](https://impots.gouv.fr/portail/statistiques)
+#' [site of the DGI](https://www.impots.gouv.fr/portail/statistiques)
 #'
 NULL
 

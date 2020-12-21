@@ -3,6 +3,7 @@
 \name{generics}
 \alias{generics}
 \alias{variance}
+\alias{gmean}
 \alias{covariance}
 \alias{correlation}
 \alias{stdev}
@@ -12,6 +13,7 @@
 \alias{kurtosis}
 \alias{skewness}
 \alias{variance.default}
+\alias{gmean.default}
 \alias{stdev.default}
 \alias{madev.default}
 \alias{skewness.default}
@@ -20,6 +22,8 @@
 \title{Generic functions provided by the statecoaes package}
 \usage{
 variance(x, ...)
+
+gmean(x, r = 1, ...)
 
 covariance(x, ...)
 
@@ -39,6 +43,8 @@ skewness(x, ...)
 
 \method{variance}{default}(x, w = NULL, ...)
 
+\method{gmean}{default}(x, r = 1, ...)
+
 \method{stdev}{default}(x, w = NULL, ...)
 
 \method{madev}{default}(x, w = NULL, center = c("median", "mean"), ...)
@@ -54,6 +60,8 @@ pre_print(x)
 classes}
 
 \item{...}{further arguments}
+
+\item{r}{the order of the mean for the \code{gmean} function}
 
 \item{w}{a vector of weights}
 

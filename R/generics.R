@@ -13,6 +13,7 @@
 #' @param center the center value used to compute the deviations, one
 #'     of `"median"` or `"mean"`
 #' @param w a vector of weights
+#' @param r the order of the mean for the `gmean` function
 #' @param ... further arguments
 #' @return a numeric or a tibble
 #' @importFrom stats weighted.mean
@@ -21,6 +22,11 @@
 #' 
 variance <- function(x, ...)
     UseMethod("variance")
+
+#' @rdname generics
+#' @export
+gmean <- function(x, r = 1, ...)
+    UseMethod("gmean")
 
 #' @rdname generics
 #' @export
@@ -69,6 +75,16 @@ variance.default <- function(x, w = NULL, ...){
     xb <- weighted.mean(x, w)
     weighted.mean((x - xb) ^ 2, w)
 }
+
+#' @rdname generics
+#' @export
+gmean.default <- function(x, r = 1, ...){
+    if (r == 0){
+        exp(mean(log(x)))
+    }
+    mean(x ^ r, w) ^ (1 / r)
+}
+
 
 #' @rdname generics
 #' @export

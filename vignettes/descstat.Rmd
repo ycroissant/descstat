@@ -156,18 +156,18 @@ Note the use of the `pre_print` method which turns the `3.5` numerical
 value in `>=3`.
 
 To get more enhanced graphics, a `pre_plot` method is provided, with a
-`plot` argument equal to `banner` or `cumulative`. With `plot =
-"banner"`,
+`plot` argument equal to `stacked` or `cumulative`. With `plot =
+"stacked"`,
 
 ```{r }
-cld %>% pre_print %>% pre_plot("f", plot = "banner")
+cld %>% pre_print %>% pre_plot("f", plot = "stacked")
 ```
 
 `pre_plot` returns an `ypos` series which indicates the coordinates
 where to write the label corresponding to the frequencies.
 
 ```{r }
-bnp <- cld %>% pre_print %>% pre_plot("f", plot = "banner") %>%
+bnp <- cld %>% pre_print %>% pre_plot("f", plot = "stacked") %>%
     ggplot(aes(x = 2, y = f, fill = children)) +
     geom_col() +
     geom_text(aes(y = ypos, label = f)) +

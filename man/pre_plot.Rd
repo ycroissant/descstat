@@ -11,28 +11,28 @@ pre_plot(x, y = NULL, plot = NULL, ...)
 \method{pre_plot}{freq_table}(
   x,
   y = NULL,
-  plot = c("histogram", "freqpoly", "lorenz", "banner", "cumulative"),
+  plot = c("histogram", "freqpoly", "lorenz", "stacked", "cumulative"),
   ...
 )
 
 \method{pre_plot}{cont_table}(x, ...)
 }
 \arguments{
-\item{x}{a tibble returned by any of the \code{freq_table}, \code{freq_table}
-or \code{cont_table} function, which should contain the center of the
-classes (\code{x}) and at least one measure of the frequencies or
-densities (one of \code{f}, \code{n}, \code{p}, \code{d})}
+\item{x}{a tibble returned by the \code{freq_table} or the \code{cont_table}
+function, which should contain the center of the classes (\code{x})
+and at least one measure of the frequencies or densities (one
+of \code{f}, \code{n}, \code{p}, \code{d})}
 
 \item{y}{mandatory argument if the tibble contains more than one
 frequency or density}
 
-\item{plot}{for object of class \code{freq_table} one of \code{histogram}
-(the default) and \code{freqpoly} : in the first case a tibble is
-returned with columns \code{x}, \code{y}, \code{xend}, \code{yend} and in the
-second case \code{x} and \code{y} ; for object of class \code{freq_table} one
-of \code{banner} (the default) and \code{cumulative} : in the first case
-a tibble is returned with columns \code{x}, \code{y} and in the second
-case \code{x}, \code{y}, \code{xend} and \code{yend}.}
+\item{plot}{for object of class \code{freq_table} one of \code{histogram} (a
+tibble is returned with columns \code{x}, \code{y}, \code{xend}, \code{yend} that
+should be passed to \code{geom_polygon}), \code{freqpoly} (a tibble with
+columns \code{x} and \code{y} that should be passed to \code{geom_line}),
+\code{stacked} (to compute a stacked bar plot or a pie chart usign
+\code{geom_col}) and \code{cumulative} (which returns a tibble with \code{x},
+\code{y}, \code{xend} and \code{yend} that should be passed to `geom_segment).}
 
 \item{...}{further arguments}
 }
@@ -40,8 +40,8 @@ case \code{x}, \code{y}, \code{xend} and \code{yend}.}
 a tibble
 }
 \description{
-Convert a tibble built using \code{freq_table}, \code{bins_table} or
-\code{cont_table} in a shape that make it easy to plot
+Convert a tibble built using \code{freq_table}, or \code{cont_table} in a
+shape that make it easy to plot
 }
 \examples{
 library("dplyr")
@@ -54,7 +54,7 @@ pad \%>\% pre_plot(y = "d", plot = "freqpoly") \%>\%
 ggplot() + geom_line(aes(x, y))
 ## A pie chart
 wages \%>\% freq_table(sector, "p", total = FALSE) \%>\%
-  pre_plot("p", plot = "banner") \%>\% ggplot(aes(x = 2, y = p, fill = sector)) +
+  pre_plot("p", plot = "stacked") \%>\% ggplot(aes(x = 2, y = p, fill = sector)) +
   geom_col() + geom_text(aes(y = ypos, label = round(p))) +
   coord_polar(theta = "y")
 

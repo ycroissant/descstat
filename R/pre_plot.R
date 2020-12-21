@@ -1,24 +1,24 @@
 #' Put a tibble in form to plot
 #'
-#' Convert a tibble built using `freq_table`, `bins_table` or
-#' `cont_table` in a shape that make it easy to plot
+#' Convert a tibble built using `freq_table`, or `cont_table` in a
+#' shape that make it easy to plot
 #'
 #' 
 #' @name pre_plot
 #' @aliases pre_plot
-#' @param x a tibble returned by any of the `freq_table`, `freq_table`
-#'     or `cont_table` function, which should contain the center of the
-#'     classes (`x`) and at least one measure of the frequencies or
-#'     densities (one of `f`, `n`, `p`, `d`)
+#' @param x a tibble returned by the `freq_table` or the `cont_table`
+#'     function, which should contain the center of the classes (`x`)
+#'     and at least one measure of the frequencies or densities (one
+#'     of `f`, `n`, `p`, `d`)
 #' @param y mandatory argument if the tibble contains more than one
 #'     frequency or density
-#' @param plot for object of class `freq_table` one of `histogram`
-#'     (the default) and `freqpoly` : in the first case a tibble is
-#'     returned with columns `x`, `y`, `xend`, `yend` and in the
-#'     second case `x` and `y` ; for object of class `freq_table` one
-#'     of `banner` (the default) and `cumulative` : in the first case
-#'     a tibble is returned with columns `x`, `y` and in the second
-#'     case `x`, `y`, `xend` and `yend`.
+#' @param plot for object of class `freq_table` one of `histogram` (a
+#'     tibble is returned with columns `x`, `y`, `xend`, `yend` that
+#'     should be passed to `geom_polygon`), `freqpoly` (a tibble with
+#'     columns `x` and `y` that should be passed to `geom_line`),
+#'     `stacked` (to compute a stacked bar plot or a pie chart usign
+#'     `geom_col`) and `cumulative` (which returns a tibble with `x`,
+#'     `y`, `xend` and `yend` that should be passed to `geom_segment).
 #' @param ... further arguments
 #' @return a tibble
 #' @importFrom dplyr desc as_tibble transmute
@@ -37,7 +37,7 @@
 #' ggplot() + geom_line(aes(x, y))
 #' ## A pie chart
 #' wages %>% freq_table(sector, "p", total = FALSE) %>%
-#'   pre_plot("p", plot = "banner") %>% ggplot(aes(x = 2, y = p, fill = sector)) +
+#'   pre_plot("p", plot = "stacked") %>% ggplot(aes(x = 2, y = p, fill = sector)) +
 #'   geom_col() + geom_text(aes(y = ypos, label = round(p))) +
 #'   coord_polar(theta = "y")
 #' 
@@ -47,7 +47,7 @@ pre_plot <- function(x, y = NULL, plot = NULL, ...)
 #' @rdname pre_plot
 #' @export
 pre_plot.freq_table <- function(x, y = NULL,
-                                plot = c("histogram", "freqpoly", "lorenz", "banner", "cumulative"), ...){
+                                plot = c("histogram", "freqpoly", "lorenz", "stacked", "cumulative"), ...){
     plot <- match.arg(plot)
     data <- x
     if (plot %in% c("histogram", "freqpoly")){
@@ -114,7 +114,7 @@ pre_plot.freq_table <- function(x, y = NULL,
             filter(! is.na(.data$cls)) %>%
             pivot_wider(names_from = .data$axe, values_from = .data$value)
     }
-    if (plot == "banner"){
+    if (plot == "stacked"){
         if (is.null(y)) y <- names(data)[2]
         data <- data %>% select(1, all_of(y))
         z <- names(data)[1]

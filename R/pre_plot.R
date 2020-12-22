@@ -113,7 +113,7 @@ pre_plot.freq_table <- function(x, y = NULL,
             arrange(.data$cls, .data$pos) %>%
             filter(! is.na(.data$cls)) %>%
             pivot_wider(names_from = .data$axe, values_from = .data$value) %>%
-            select(- pos)
+            select(- .data$pos)
     }
     if (plot == "stacked"){
         if (is.null(y)) y <- names(data)[2]

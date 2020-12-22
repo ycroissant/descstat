@@ -90,21 +90,22 @@ stdev.default <- function(x, w = NULL, ...)
     sqrt(variance(x = x, w = w, ...))
 
 
-#' @rdname generics
-#' @export
-madev.default <- function(x, w = NULL, center = c("median", "mean"), ...){
-    center <- match.arg(center)
-    if (is.null(w)) stop("w should be indicated")
-    if (center == "median") ctr <-  median(x = x, w = w)
-    if (center == "mean") ctr <- weighted.mean(x, w)
-    weighted.mean(abs(x - ctr), w)
-}
+## #' @rdname generics
+## #' @export
+## madev.default <- function(x, w = NULL, center = c("median", "mean"), ...){
+##     center <- match.arg(center)
+##     if (is.null(w)) stop("w should be indicated")
+##     if (center == "median") ctr <-  median(x = x, w = w)
+##     if (center == "mean") ctr <- weighted.mean(x, w)
+##     weighted.mean(abs(x - ctr), w)
+## }
 
 #' @rdname generics
 #' @export
 skewness.default <- function(x, ...){
+    N <- length(x)
     xb <- mean(x)
-    sd <- sd(x)
+    sd <- sd(x) * sqrt((N - 1) / N)
     x3 <- mean((x - xb) ^ 3)
     x3 / sd ^ 3
 }
@@ -112,11 +113,14 @@ skewness.default <- function(x, ...){
 #' @rdname generics
 #' @export
 kurtosis.default <- function(x, ...){
+    N <- length(x)
     xb <- mean(x)
-    sd <- sd(x)
+    sd <- sd(x) * sqrt((N - 1) / N)
     x4 <- mean((x - xb) ^ 4)
     x4 / sd ^ 4 - 3
 }
+
+
 
 #' @rdname generics
 #' @export

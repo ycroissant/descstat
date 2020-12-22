@@ -74,12 +74,12 @@ freq_table <- function(data, x, cols = "n", vals = NULL, weights = NULL, total =
     if (center_lgc & mass_lgc) stop("only one of mass and center should be provided")
 
     is_freq_table <- freq_lgc
+
     # If x contains unique values, data should be a frequency table
     # and the freq argument is mandatory
     the_series <- pull(data, {{ x }})
     if (length(unique(the_series)) == length(the_series) & ! freq_lgc)
         stop("data seems to be a frequency table and the freq argument is mandatory")
-
     
     # Separate the letters of cols to get cols_vec and check whether
     # incorrect letters are provided
@@ -100,7 +100,8 @@ freq_table <- function(data, x, cols = "n", vals = NULL, weights = NULL, total =
 
     # Get the type of the series : if not num, coerce to character and
     # check whether this is a cat or a bin
-    if (is.numeric(the_series[1:10])){
+    MTS <- min(10, length(the_series))
+    if (is.numeric(the_series[1:MTS])){
         x_is_num <- TRUE
         x_is_cat <- FALSE
         x_is_bin <- FALSE
@@ -109,7 +110,7 @@ freq_table <- function(data, x, cols = "n", vals = NULL, weights = NULL, total =
         x_is_num <- FALSE
         if (is.factor(pull(data, {{ x }})))
             data <- mutate(data, "{{ x }}" := as.character({{ x }}))
-        if (is.null(cls2lims(the_series[1:10]))){
+        if (is.null(cls2lims(the_series[1:MTS]))){
             # the series is a cat
             x_is_cat <- TRUE
             x_is_bin <- FALSE
@@ -129,7 +130,6 @@ freq_table <- function(data, x, cols = "n", vals = NULL, weights = NULL, total =
             x_is_bin <- TRUE
         }
     }
-
 
     # If breaks is provided, either a numeric series is provided and
     # it is coerced to bins using cut, or a bin series is provided and

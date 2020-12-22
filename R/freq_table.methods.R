@@ -104,11 +104,13 @@ kurtosis.freq_table <- function(x, ...){
 madev.freq_table <- function(x, center = c("median", "mean"), ...){
     x <- x %>% na.omit
     center <- match.arg(center)
+    if (center == "median") center <- median(x)
+    else center <- mean(x)
     if (! "f" %in% names(x)){
         cf <- compute_freq(x)
         x <- x %>% mutate(f = cf)
     }
-    madev(get_numval(x), w = x$f, center = center)
+    weighted.mean(abs(get_numval(x) - ctr), w)
 }
 
 #' @rdname freq_table.methods

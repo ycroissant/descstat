@@ -15,7 +15,6 @@
 \alias{variance.default}
 \alias{gmean.default}
 \alias{stdev.default}
-\alias{madev.default}
 \alias{skewness.default}
 \alias{kurtosis.default}
 \alias{pre_print}
@@ -46,8 +45,6 @@ skewness(x, ...)
 \method{gmean}{default}(x, r = 1, ...)
 
 \method{stdev}{default}(x, w = NULL, ...)
-
-\method{madev}{default}(x, w = NULL, center = c("median", "mean"), ...)
 
 \method{skewness}{default}(x, ...)
 

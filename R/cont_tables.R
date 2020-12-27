@@ -19,14 +19,17 @@
 #' @param y the series on which the operation should be computed
 #' @param y1 a first factor
 #' @param y2 a second factor
-#' @param weights a series containing the weights that should be used to
-#'     mimic the population
+#' @param weights a series containing the weights that should be used
+#'     to mimic the population
+#' @param freq the frequencies (in case where data is contingency
+#'     table)
 #' @param total if `TRUE` (the defaut values), a total is added to the
 #'     table
 #' @param xfirst1 the center of the first class for the first variable
 #' @param xlast1 the center of the last class for the first variable
 #' @param wlast1 the width of the last class for the first variable
-#' @param xfirst2 the center of the first class for the second variable
+#' @param xfirst2 the center of the first class for the second
+#'     variable
 #' @param xlast2 the center of the last class for the second variable
 #' @param wlast2 the width of the last class for the second variable
 #' @param drop if `TRUE`, the default, a numeric is returned,
@@ -55,18 +58,30 @@
 #' cont_table(wages, wage, size) %>% marginal(size)
 #' cont_table(wages, wage, size) %>% conditional(size) %>% mean
 #' 
-cont_table <- function(data, y1, y2, weights = NULL,
+cont_table <- function(data, y1, y2, weights = NULL, freq = NULL,
                        total = FALSE,
                        xfirst1 = NULL, xlast1 = NULL, wlast1 = NULL,
                        xfirst2 = NULL, xlast2 = NULL, wlast2 = NULL){
+    
+    # If freq is provided, data is already a freq table
+    freq_lgc <- deparse(substitute(freq)) != "NULL"
+    # If x contains unique values, data should be a frequency table
+    # and the freq argument is mandatory
+    the_series <- select(data, {{ y1 }}, {{ y2 }})
+    if (nrow(distinct(the_series)) == nrow(the_series) & ! freq_lgc)
+        stop("data seems to be a frequency table and the freq argument is mandatory")
+
     wgts_lgc <- deparse(substitute(weights)) != "NULL"
     y1_name <- deparse(substitute(y1))
     y2_name <- deparse(substitute(y2))
-    if (! wgts_lgc) ct <- data %>% group_by({{ y1 }}, {{ y2 }}) %>%
-                        summarise(n = n()) %>% ungroup
-    else  ct <- data %>% group_by({{ y1 }}, {{ y2 }}) %>%
-              summarise(n = sum({{ weights }})) %>% ungroup
-#    if (na.rm) ct <- na.omit(ct)
+    if (freq_lgc) ct <- data %>% select({{ y1 }}, {{ y2 }}, n = {{ freq }})
+    else{
+        if (! wgts_lgc) ct <- data %>% group_by({{ y1 }}, {{ y2 }}) %>%
+                            summarise(n = n()) %>% ungroup
+        else  ct <- data %>% group_by({{ y1 }}, {{ y2 }}) %>%
+                  summarise(n = sum({{ weights }})) %>% ungroup
+              #    if (na.rm) ct <- na.omit(ct)
+    }
     ct <- ct %>% mutate_if(is.factor, as.character)
     if (total){
         mg_1 <- ct %>% group_by({{ y1 }}) %>%

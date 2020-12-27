@@ -22,6 +22,7 @@ cont_table(
   y1,
   y2,
   weights = NULL,
+  freq = NULL,
   total = FALSE,
   xfirst1 = NULL,
   xlast1 = NULL,
@@ -64,8 +65,11 @@ regline(formula, data)
 
 \item{y2}{a second factor}
 
-\item{weights}{a series containing the weights that should be used to
-mimic the population}
+\item{weights}{a series containing the weights that should be used
+to mimic the population}
+
+\item{freq}{the frequencies (in case where data is contingency
+table)}
 
 \item{total}{if \code{TRUE} (the defaut values), a total is added to the
 table}
@@ -76,7 +80,8 @@ table}
 
 \item{wlast1}{the width of the last class for the first variable}
 
-\item{xfirst2}{the center of the first class for the second variable}
+\item{xfirst2}{the center of the first class for the second
+variable}
 
 \item{xlast2}{the center of the last class for the second variable}
 

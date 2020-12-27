@@ -3,16 +3,15 @@ title: descstat, an R Package for Computing Descriptive Statistics
 author: Yves Croissant
 date: 2020/11/29
 output: 
+  pdf_document:
+    number_sections: true
   html_document:
     toc: true
     toc_float: true
-  pdf_document:
-    number_sections: true
-
 vignette: >
+  %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{desctat: an R package for descriptive statistics}
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 

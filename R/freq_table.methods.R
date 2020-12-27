@@ -110,7 +110,7 @@ madev.freq_table <- function(x, center = c("median", "mean"), ...){
         cf <- compute_freq(x)
         x <- x %>% mutate(f = cf)
     }
-    weighted.mean(abs(get_numval(x) - ctr), w)
+    weighted.mean(abs(get_numval(x) - center), x$f)
 }
 
 #' @rdname freq_table.methods

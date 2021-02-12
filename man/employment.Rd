@@ -7,20 +7,21 @@
 \format{
 a tibble containing:
 \itemize{
-\item activity : a factor with levels \code{occupied}, \code{unemployed} and \code{inactive}
+\item activity : a factor with levels \code{occupied}, \code{unemployed} and
+\code{inactive},
 \item time : job time a factor with levels \code{part}, \code{full} and
-\code{unknown}
-\item education : level of education
-\item age : age in years
-\item sex : one of \code{male} or \code{female}
-\item household : kind of household, \code{single}, \code{monop} (monoparental
+\code{unknown},
+\item education : level of education,
+\item age : age in years,
+\item sex : one of \code{male} or \code{female},
+\item household : kind of household, \code{single}, \code{monop} (mono-parental
 family), \code{couple} (couple without children), \code{family} (couple with
-families) and \code{other}.
-\item weights : weights to mimic the population
+families) and \code{other},
+\item weights : weights to mimic the population.
 }
 }
 \source{
-Employment survey 2018, site of the \href{https://www.insee.fr/fr/statistiques/4191029}{INSEE}
+Employment survey 2018, \href{https://www.insee.fr/fr/statistiques/4191029}{INSEE}'s website
 }
 \description{
 The employment survey gives information about characteristics of

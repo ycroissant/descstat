@@ -21,27 +21,28 @@ pre_plot(x, y = NULL, plot = NULL, ...)
 \item{x}{a tibble returned by the \code{freq_table} or the \code{cont_table}
 function, which should contain the center of the classes (\code{x})
 and at least one measure of the frequencies or densities (one
-of \code{f}, \code{n}, \code{p}, \code{d})}
+of \code{f}, \code{n}, \code{p}, \code{d}),}
 
 \item{y}{mandatory argument if the tibble contains more than one
-frequency or density}
+frequency or density,}
 
 \item{plot}{for object of class \code{freq_table} one of \code{histogram} (a
 tibble is returned with columns \code{x}, \code{y}, \code{xend}, \code{yend} that
 should be passed to \code{geom_polygon}), \code{freqpoly} (a tibble with
 columns \code{x} and \code{y} that should be passed to \code{geom_line}),
 \code{stacked} (to compute a stacked bar plot or a pie chart usign
-\code{geom_col}) and \code{cumulative} (which returns a tibble with \code{x},
-\code{y}, \code{xend} and \code{yend} that should be passed to `geom_segment).}
+\code{geom_col}), \code{cumulative} (which returns a tibble with \code{x},
+\code{y}, \code{xend} and \code{yend} that should be passed to \code{geom_segment})
+and \code{lorenz} for the Lorenz curve,}
 
-\item{...}{further arguments}
+\item{...}{further arguments.}
 }
 \value{
 a tibble
 }
 \description{
 Convert a tibble built using \code{freq_table}, or \code{cont_table} in a
-shape that make it easy to plot
+shape that makes it easy to plot.
 }
 \examples{
 library("dplyr")

@@ -14,8 +14,8 @@ a tibble containing :
 }
 \source{
 Impot sur le revenu par commune (IRCOM)
-\href{https://www.impots.gouv.fr/portail/statistiques}{site of the DGI}
+\href{https://www.impots.gouv.fr/portail/statistiques}{DGI}'s website
 }
 \description{
-bins of incomes, number and mass of income
+bins of income classes, number of households and mass of income.
 }

@@ -7,27 +7,27 @@
 \format{
 a tibble containing
 \itemize{
-\item zone : one of the 12 zones of Padova
-\item condition : \code{new} for new housings, \code{ordinary} or \code{good} for old ones
-\item house : dummy for houses
-\item floor : floor
+\item zone : one of the 12 zones of Padova,
+\item condition : \code{new} for new housings, \code{ordinary} or \code{good} for old ones,
+\item house : dummy for houses,
+\item floor : floor,
 \item rooms : number of rooms,
 \item bathrooms : number of bathrooms,
-\item parking : dummy for parkings
-\item energy : energy cathegory for the house (A for the best, G for the worst)
-\item area : area of the house in  m$^2$
-\item price : price of the house in thousands of euros
+\item parking : dummy for parkings,
+\item energy : energy cathegory for the house (A for the best, G for the worst),
+\item area : area of the house in square meters,
+\item price : price of the house in thousands of euros.
 }
 }
 \source{
-\href{https://www.sciencedirect.com/science/article/pii/S2352340915003224}{site of Data in Brief}
+\href{https://www.sciencedirect.com/science/article/pii/S2352340915003224}{Data in Brief}'s website.
 }
 \description{
-This data set document characteristics (including the prices) of a
+This data set documents characteristics (including the prices) of a
 sample of housings in Padova
 }
 \references{
 Bonifaci P, Copiello S
 (2015). "Real estate market and building energy performance: Data for a mass appraisal approach."
-\emph{Data in Brief}, \emph{5}, 1060-1065. ISSN 2352-3409
+\emph{Data in Brief}, \emph{5}, 1060-1065. ISSN 2352-3409.
 }

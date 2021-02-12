@@ -2,8 +2,6 @@
 % Please edit documentation in R/freq_table.R
 \name{freq_table}
 \alias{freq_table}
-\alias{format.freq_table}
-\alias{pre_print.freq_table}
 \title{Frequency table}
 \usage{
 freq_table(
@@ -23,75 +21,61 @@ freq_table(
   mass = NULL,
   center = NULL
 )
-
-\method{format}{freq_table}(x, ..., n = NULL, width = NULL, n_extra = NULL)
-
-\method{pre_print}{freq_table}(x)
 }
 \arguments{
 \item{data}{a tibble}
 
-\item{x}{a categorical or numerical series}
+\item{x}{a categorical or numerical series,}
 
 \item{cols}{a string containing \code{n} for counts, \code{f} for relative
 frequencies, \code{p} for percentages and \code{m} for mass frequencies.
 Cumulative series are obtained using the same letters in upper
-caps}
+caps,}
 
 \item{vals}{a character containing letters indicating the values of
-the variable that should be returned ; \code{x} for the center of
-the class, \code{l} and \code{u} for the lower and upper limit of the
-class, \code{a} for the range}
+the variable that should be returned; \code{x} for the center of the
+class, \code{l} and \code{u} for the lower and upper limit of the class,
+\code{a} for the range,}
 
-\item{weights}{a series that contain the weights tant enables the
-sample to mimic the population}
+\item{weights}{a series that contain the weights that enable the
+sample to mimic the population,}
 
 \item{total}{a logical indicating whether the total should be
-returned}
+returned,}
 
 \item{max}{if the series is a discrete numerical value, this
 argument indicates that all the values greater than \code{max}
-should be merged in the same modality}
+should be merged in the same modality,}
 
-\item{breaks}{a numerical vector of class limits}
+\item{breaks}{a numerical vector of class limits,}
 
 \item{right}{a logical indicating whether classes should be closed
-(\code{right = TRUE}) or open (\code{right = FALSE}) on the right}
+(\code{right = TRUE}) or open (\code{right = FALSE}) on the right,}
 
-\item{xfirst}{a numeric indicating the value of the center of the
-first class}
+\item{xfirst}{see \code{\link[=as_numeric]{as_numeric()}},}
 
-\item{xlast}{a numeric indicating the center of the last class}
+\item{xlast}{see \code{\link[=as_numeric]{as_numeric()}},}
 
-\item{wlast}{if \code{xlast} is not set, the width of the last class is
-set to the one of the second to last width times this parameter}
+\item{wlast}{see \code{\link[=as_numeric]{as_numeric()}},}
 
 \item{freq}{a series that contains the frequencies (only relevant
-if \code{data} is already a frequency table)}
+if \code{data} is already a frequency table),}
 
 \item{mass}{a series that contains the masses of the variable (only
-relevant if \code{data} is already a frequency table)}
+relevant if \code{data} is already a frequency table),}
 
 \item{center}{a series that contains the center of the class of the
-variable (only relevant if \code{data} is already a frequency table)}
-
-\item{...}{argument passed to \code{format.tbl}}
-
-\item{n}{argument passed to \code{format.tbl}}
-
-\item{width}{argument passed to \code{format.tbl}}
-
-\item{n_extra}{argument passed to \code{format.tbl}}
+variable (only relevant if \code{data} is already a frequency
+table),}
 }
 \value{
 a tibble containing the specified values of \code{vals} and
-\code{cols}
+\code{cols}.
 }
 \description{
-Compute the frequency table of a categorical or a quantitative series
+Compute the frequency table of a categorical or a numerical series
 }
 \examples{
-
 # in table padova, price is a numeric variable, a vector of breaks should be provided
 library("dplyr")
 padova \%>\% freq_table(price, breaks = c(50, 100, 150, 200, 250, 300, 350, 400),

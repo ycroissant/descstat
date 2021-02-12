@@ -8,7 +8,7 @@
 a tibble containing:
 \itemize{
 \item sector : activity sector, \code{industry}, \code{building}, \code{business},
-\code{services} and `administration,
+\code{services} and \code{administration},
 \item age :  the age in years
 \item hours : annual number of hours worked
 \item sex : sex of the wage earner, \code{male} or \code{female},
@@ -17,7 +17,7 @@ a tibble containing:
 }
 }
 \source{
-DADS survey 2015, site of the \href{https://www.insee.fr/fr/statistiques/3536754}{INSEE}
+DADS survey 2015, \href{https://www.insee.fr/fr/statistiques/3536754}{INSEE}'s website
 }
 \description{
 The DADS survey (Declaration Annuelle des Données Sociales)

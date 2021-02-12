@@ -7,15 +7,15 @@
 \format{
 a tibble containing :
 \itemize{
-\item cars : number of cars
-\item rooms : number of rooms of the housing
-\item children : number of children
-\item type : type of household ; \code{couple} or \code{monop} (for mono-parental families)
-\item ER : sex if the R^th^ child (from 1 to 11).
+\item cars : number of cars,
+\item rooms : number of rooms of the housing,
+\item children : number of children,
+\item type : type of household ; \code{couple} or \code{monop} (for mono-parental families),
+\item ER : sex if the Rth child (from 1 to 11).
 }
 }
 \source{
-\href{https://www.insee.fr/fr/statistiques/4507685?sommaire=4508161}{site of the INSEE}
+\href{https://www.insee.fr/fr/statistiques/4507685?sommaire=4508161}{INSEE}'s website
 }
 \description{
 this extract gives information about a sample of French households

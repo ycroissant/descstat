@@ -1,27 +1,27 @@
 #' Put a tibble in form to plot
 #'
 #' Convert a tibble built using `freq_table`, or `cont_table` in a
-#' shape that make it easy to plot
-#'
+#' shape that makes it easy to plot.
 #' 
 #' @name pre_plot
 #' @aliases pre_plot
 #' @param x a tibble returned by the `freq_table` or the `cont_table`
 #'     function, which should contain the center of the classes (`x`)
 #'     and at least one measure of the frequencies or densities (one
-#'     of `f`, `n`, `p`, `d`)
+#'     of `f`, `n`, `p`, `d`),
 #' @param y mandatory argument if the tibble contains more than one
-#'     frequency or density
+#'     frequency or density,
 #' @param plot for object of class `freq_table` one of `histogram` (a
 #'     tibble is returned with columns `x`, `y`, `xend`, `yend` that
 #'     should be passed to `geom_polygon`), `freqpoly` (a tibble with
 #'     columns `x` and `y` that should be passed to `geom_line`),
 #'     `stacked` (to compute a stacked bar plot or a pie chart usign
-#'     `geom_col`) and `cumulative` (which returns a tibble with `x`,
-#'     `y`, `xend` and `yend` that should be passed to `geom_segment).
-#' @param ... further arguments
+#'     `geom_col`), `cumulative` (which returns a tibble with `x`,
+#'     `y`, `xend` and `yend` that should be passed to `geom_segment`)
+#'     and `lorenz` for the Lorenz curve,
+#' @param ... further arguments.
 #' @return a tibble
-#' @importFrom dplyr desc as_tibble transmute
+#' @importFrom dplyr desc as_tibble transmute rename
 #' @importFrom purrr map_df
 #' @importFrom tidyr separate pivot_wider pivot_longer
 #' @export
@@ -68,8 +68,8 @@ pre_plot.freq_table <- function(x, y = NULL,
                                                       ignore.case = FALSE))
         }        
         K <- nrow(data)
-        xu <- data %>% pull(1) %>% cls2val(1)
-        xl <- data %>% pull(1) %>% cls2val(0)
+        xu <- data %>% pull(1) %>% as_numeric(1)
+        xl <- data %>% pull(1) %>% as_numeric(0)
         x <- data %>% pull(x)
         xu[K] <- xl[K] + 2 * (x[K] - xl[K])
         xl[1] <- xu[1] - 2 * (xu[1] - x[1])
@@ -139,6 +139,7 @@ pre_plot.freq_table <- function(x, y = NULL,
     structure(data, class = c("freq_table", class(data)))
 }
 
+
 #' @rdname pre_plot
 #' @export
 pre_plot.cont_table <- function(x, ...){
@@ -146,7 +147,7 @@ pre_plot.cont_table <- function(x, ...){
     lim1 <- attr(x, "limits")[[1]]
     lim2 <- attr(x, "limits")[[2]]
     x <- as_tibble(x)
-    x[[1]] <- cls2val(x[[1]], 0.5, xfirst = lim1$first, xlast = lim1$last)
-    x[[2]] <- cls2val(x[[2]], 0.5, xfirst = lim2$first, xlast = lim2$last)
+    x[[1]] <- as_numeric(x[[1]], 0.5, xfirst = lim1$first, xlast = lim1$last)
+    x[[2]] <- as_numeric(x[[2]], 0.5, xfirst = lim2$first, xlast = lim2$last)
     x
 }

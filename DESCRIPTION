@@ -1,12 +1,12 @@
 Package: descstat
-Version: 0.1-1
-Date: 2020-12-20
+Version: 0.1-2
+Date: 2021-02-10
 Title: Tools for Descriptive Statistics
 Authors@R: person("Yves", "Croissant", role = c("aut", "cre"), email = "yves.croissant@univ-reunion.fr")
 Depends: R (>= 4.0.0)
-Imports: rlang, purrr, dplyr, tidyr, tibble, tidyselect
+Imports: rlang, purrr, dplyr, tidyr, tibble, tidyselect, forcats, cli
 Suggests: knitr, ggplot2, rmarkdown
-Description: A toolbox for descriptive statistics, based on the computation of frequency, bins and contingency tables. Several statistical functions and plot methods are provided to describe univariate or bivariate distributions of factors, integer series and numerical series either provided as individual values or as bins.
+Description: A toolbox for descriptive statistics, based on the computation of frequency and contingency tables. Several statistical functions and plot methods are provided to describe univariate or bivariate distributions of factors, integer series and numerical series either provided as individual values or as bins.
 Encoding: UTF-8
 License: GPL (>=2)
 URL: https://www.r-project.org

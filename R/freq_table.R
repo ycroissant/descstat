@@ -1,12 +1,12 @@
 #' Frequency table
 #'
-#' Compute the frequency table of a categorical or a numerical series
+#' Compute the frequency table of a categorical or a numerical series.
 #' 
 #' @name freq_table
 #' @aliases freq_table
-#' @param data a tibble
+#' @param data a tibble,
 #' @param x a categorical or numerical series,
-#' @param cols a string containing `n` for counts, `f` for relative
+#' @param f a string containing `n` for counts, `f` for relative
 #'     frequencies, `p` for percentages and `m` for mass frequencies.
 #'     Cumulative series are obtained using the same letters in upper
 #'     caps,
@@ -24,18 +24,16 @@
 #' @param breaks a numerical vector of class limits,
 #' @param right a logical indicating whether classes should be closed
 #'     (`right = TRUE`) or open (`right = FALSE`) on the right,
-#' @param xfirst see [as_numeric()],
-#' @param xlast see [as_numeric()],
-#' @param wlast see [as_numeric()],
+#' @param xfirst,xlast,wlast see [as_numeric()],
 #' @param freq a series that contains the frequencies (only relevant
 #'     if `data` is already a frequency table),
 #' @param mass a series that contains the masses of the variable (only
 #'     relevant if `data` is already a frequency table),
 #' @param center a series that contains the center of the class of the
 #'     variable (only relevant if `data` is already a frequency
-#'     table),
+#'     table).
 #' @return a tibble containing the specified values of `vals` and
-#'     `cols`.
+#'     `f`.
 #' @export
 #' @importFrom dplyr all_of slice arrange tibble add_row across near
 #'     pull `%>%` n summarise_if summarise_all group_by summarise
@@ -43,25 +41,50 @@
 #' @importFrom tibble add_column
 #' @importFrom rlang `:=` .data
 #' @importFrom tidyselect matches everything
+#' @keywords manip
 #' @author Yves Croissant
 #' @examples
 #' # in table padova, price is a numeric variable, a vector of breaks should be provided
 #' library("dplyr")
-#' padova %>% freq_table(price, breaks = c(50, 100, 150, 200, 250, 300, 350, 400),
+#' padova %>% freq_table(price,
+#'                       breaks = c(50, 100, 150, 200, 250, 300, 350, 400),
 #'                       right = TRUE)
-#' padova %>% freq_table(price, breaks = c(50, 100, 150, 200, 250, 300, 350, 400),
-#'                       right = TRUE, cols = "fd", vals = "xa")
-#' # in table wages, wage  is a factor that represents the classes
+#' # return relative frequencies and densities, and the center value
+#' # of the series and the width of the bin
+#' padova %>% freq_table(price,
+#'                       breaks = c(50, 100, 150, 200, 250, 300, 350, 400),
+#'                       right = TRUE, f = "fd", vals = "xa")
+#' # in table wages, wage is a factor that represents the classes
 #' wages %>% freq_table(wage, "d")
 #' # a breaks argument is provided to reduce the number of classes
 #' wages %>% freq_table(wage, breaks = c(10, 20, 30, 40, 50))
-#' 
-freq_table <- function(data, x, cols = "n", vals = NULL, weights = NULL, total = FALSE,
+#' # a total argument add a total to the frequency table
+#' wages %>% freq_table(wage, breaks = c(10, 20, 30, 40, 50), total = TRUE)
+#' # ìncome is already a frequency table, the freq argument
+#' # is mandatory
+#' income %>% freq_table(inc_class, freq = number)
+#' # the mass argument can be indicated if on column contains the
+#' # mass of the series in each bin. In this case, the center of the
+#' # class are exactly the mean of the series in each bin
+#' income %>% freq_table(inc_class, freq = number, mass = tot_inc)
+#' # rgp contains a children series which indicates the number of
+#' # children of the households
+#' rgp %>% freq_table(children)
+#' # a max argument can be indicated to merge the unusual high
+#' # values of number of childre
+#' rgp %>% freq_table(children, max = 4)
+#' # employment is a non random survey, there is a weights series
+#' # that can be used to compute the frequency table according to the
+#' # sum of weights and not to counts
+#' employment %>% freq_table(education)
+#' employment %>% freq_table(education, weights = weights)
+ 
+freq_table <- function(data, x, f = "n", vals = NULL, weights = NULL, total = FALSE,
                        max = NULL,
                        breaks = NULL, right = NULL,
                        xfirst = NULL, xlast = NULL, wlast = NULL,
                        freq = NULL, mass = NULL, center = NULL){
-    
+
     # x can be either of class numeric, character/factor or bin ; if
     # character/factor, it is coerced to bin if possible
     
@@ -79,18 +102,18 @@ freq_table <- function(data, x, cols = "n", vals = NULL, weights = NULL, total =
     if (length(unique(the_series)) == length(the_series) & ! freq_data)
         stop("data seems to be a frequency table and the freq argument is mandatory")
     
-    # Separate the letters of cols to get cols_vec and check whether
+    # Separate the letters of f to get f_vec and check whether
     # incorrect letters are provided
     get_letters <- function(x) strsplit(x, "")[[1]]
     # typology of the series
-    all_cols <- c("n", "f", "p", "d", "m", "N", "F", "P", "M", "d")
-    char_cols <- c("n", "f", "p")
-    cols_vec <- get_letters(cols)
+    all_f <- c("n", "f", "p", "d", "m", "N", "F", "P", "M", "d")
+    char_f <- c("n", "f", "p")
+    f_vec <- get_letters(f)
     # check for incorrect series
-    na_cols <- setdiff(cols_vec, all_cols)
-    if (length(na_cols))
-        stop(paste(paste(na_cols, collapse = ", "),
-                   ifelse(length(na_cols) == 1,
+    na_f <- setdiff(f_vec, all_f)
+    if (length(na_f))
+        stop(paste(paste(na_f, collapse = ", "),
+                   ifelse(length(na_f) == 1,
                           "is not a valid column",
                           "are not valid columns")))
 
@@ -124,7 +147,7 @@ freq_table <- function(data, x, cols = "n", vals = NULL, weights = NULL, total =
         else data <- mutate(data, "{{ x }}" := cut({{ x }}, breaks = breaks))
     }
     # densities and vals argument only relevant for bins
-    if (type != "bin" & "d" %in% cols_vec)
+    if (type != "bin" & "d" %in% f_vec)
         stop("the computation of densities is only relevant for bins")
     if (type != "bin" & ! is.null(vals))
         stop("the vals argument is only relevant for bins")
@@ -135,7 +158,7 @@ freq_table <- function(data, x, cols = "n", vals = NULL, weights = NULL, total =
         vals_na <- setdiff(vals_vec, c("a", "x", "l", "u"))
         if (length(vals_na) > 0)
             stop(paste(paste(sort(vals_na), collapse = ", "),
-                       ifelse(length(na_cols) == 1,
+                       ifelse(length(na_f) == 1,
                               "is not a valid values",
                               "are not valid values")))
     }
@@ -188,20 +211,20 @@ freq_table <- function(data, x, cols = "n", vals = NULL, weights = NULL, total =
                              .before = 2)
         }
 
-        if (! is.null(vals) | "d" %in% cols_vec){
-            if ("d" %in% cols_vec | any(c("a", "l") %in% vals_vec))
+        if (! is.null(vals) | "d" %in% f_vec){
+            if ("d" %in% f_vec | any(c("a", "l") %in% vals_vec))
                 ct <- add_column(ct, l = as_numeric(pull(ct, {{ x }}),
                                                  pos = 0,
                                                  xlast = xlast,
                                                  xfirst = xfirst,
                                                  wlast = wlast))
-            if ("d" %in% cols_vec | any(c("a", "u") %in% vals_vec))
+            if ("d" %in% f_vec | any(c("a", "u") %in% vals_vec))
                 ct <- add_column(ct, u = as_numeric(pull(ct, {{ x }}),
                                                  pos = 1,
                                                  xlast = xlast,
                                                  xfirst = xfirst,
                                                  wlast = wlast))
-            if ("d" %in% cols_vec | "a" %in% vals_vec)
+            if ("d" %in% f_vec | "a" %in% vals_vec)
                 ct <- mutate(ct, a = .data$u - .data$l)
         }
         # the default ordering of the bins may not be the desired one
@@ -221,28 +244,28 @@ freq_table <- function(data, x, cols = "n", vals = NULL, weights = NULL, total =
     # Computation of the statistics, no check of relevance is required
     # at this point as the potential errors were previously checked
     # compute the frequencies if required
-    if (any(c("f", "F", "d") %in% cols_vec)) ct <- mutate(ct, f = .data$n / sum(.data$n))
+    if (any(c("f", "F", "d") %in% f_vec)) ct <- mutate(ct, f = .data$n / sum(.data$n))
     # compute the percentages if required
-    if (any(c("p", "P") %in% cols_vec)) ct <- mutate(ct, p = .data$n / sum(.data$n) * 100)
+    if (any(c("p", "P") %in% f_vec)) ct <- mutate(ct, p = .data$n / sum(.data$n) * 100)
     # compute the masses if required
-    if (any(c("m", "M") %in% cols_vec))
+    if (any(c("m", "M") %in% f_vec))
         ct <- mutate(ct, m = (.data$n * get_numval(ct)) / sum(.data$n * get_numval(ct)))
     # compute the densities if required
-    if ("d" %in% cols_vec) ct <- ct %>% mutate(d = .data$f / .data$a)
+    if ("d" %in% f_vec) ct <- ct %>% mutate(d = .data$f / .data$a)
     # compute the cummulative distribution if required
-    if (any(c("N", "F", "P", "M") %in% cols_vec)){
-        if ("N" %in% cols_vec) ct <- ct %>% mutate(ct, N = cumsum(.data$n))
-        if ("F" %in% cols_vec) ct <- ct %>% mutate(ct, F = cumsum(.data$f))
-        if ("P" %in% cols_vec) ct <- ct %>% mutate(ct, P = cumsum(.data$p))
-        if ("M" %in% cols_vec) ct <- ct %>% mutate(ct, M = cumsum(.data$m))
+    if (any(c("N", "F", "P", "M") %in% f_vec)){
+        if ("N" %in% f_vec) ct <- ct %>% mutate(ct, N = cumsum(.data$n))
+        if ("F" %in% f_vec) ct <- ct %>% mutate(ct, F = cumsum(.data$f))
+        if ("P" %in% f_vec) ct <- ct %>% mutate(ct, P = cumsum(.data$p))
+        if ("M" %in% f_vec) ct <- ct %>% mutate(ct, M = cumsum(.data$m))
     }
 
     # Return the required subset of statistics
     if (type == "bin"){
-        cols_vec <- c(cols_vec, vals_vec)
-        cols_vec <- c("x", setdiff(cols_vec, "x"))
+        f_vec <- c(f_vec, vals_vec)
+        f_vec <- c("x", setdiff(f_vec, "x"))
     }
-    ct <- select(ct, {{ x }}, !! cols_vec)
+    ct <- select(ct, {{ x }}, !! f_vec)
 
     # coerce bin as character at this point
     if (is.factor(pull(ct, {{ x }})))
@@ -263,3 +286,6 @@ freq_table <- function(data, x, cols = "n", vals = NULL, weights = NULL, total =
 }
 
 
+#' @importFrom magrittr %>%
+#' @export
+magrittr::`%>%` 

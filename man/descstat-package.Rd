@@ -20,14 +20,14 @@ the use of the pipe operator and of tibbles.
 
 In a frequency (or contingency table), continuous numerical series
 are presented as bins. Moreover, for some surveys, the individual
-values are not known, but only the fact that this values belongs to
+values are not known, but only the fact that these values belongs to
 a bin. Therefore, it is crucial to be able to work easily with
 bins, ie:
 \itemize{
 \item creating bins from numerical values, which is performed by the
 \code{base::cut} function which turns a numerical series to a bin,
-\item coercing bins to numerical values, ie getting from the \verb{[10,20)}
-the lower bound (10), the upper bound (20), the center (15) or
+\item coercing bins to numerical values, eg getting from the \verb{[10,20)}
+bin the lower bound (10), the upper bound (20), the center (15) or
 whatever other value of the bin,
 \item reducing the number of bins by merging some of them (for example
 \verb{[0,10)}, \verb{[10, 20)}, \verb{[20,30)}, \verb{[30,Inf)} to \verb{[0,20)}, \verb{[20,Inf)}
@@ -64,20 +64,20 @@ conditional distributions,
 A \code{pre_plot} function is provided to put the tibble in form in
 order to use classic plots for univariate or bivariate
 distributions. This includes histogram, frequency plot, pie chart,
-Lorenz curve. The final plot can then be obtained using some geoms
-of \strong{ggplot2}.
+cummulative plot and Lorenz curve. The final plot can then be
+obtained using some geoms of \strong{ggplot2}.
 }
 
 \section{Descriptive statistics}{
 
 
-A full set of statistical functions (central tendency, dispersion,
-shape, concentration and covariation) are provided and can be used
-directly on objects of class \code{freq_table} or \code{cont_table}. Some of
-them are methods of generics defined by the \code{stats} package, some
-other are defined as methods for generics function provided by the
-\strong{descstat} function when the corresponding \strong{R} function is not
-generic. For example,
+A full set of statistical functions (of central tendency,
+dispersion, shape, concentration and covariation) are provided and
+can be applied directly on objects of class \code{freq_table} or
+\code{cont_table}. Some of them are methods of generics defined by the
+\code{base} or \code{stats} package, some other are defined as methods for
+generics function provided by the \strong{descstat} function when the
+corresponding \strong{R} function is not generic. For example,
 \itemize{
 \item \code{mean} is generic, so that we wrote a
 \code{mean.freq_table} method to compute directly the mean of a series

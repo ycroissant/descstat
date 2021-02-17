@@ -24,10 +24,11 @@ a tibble containing
 }
 \description{
 This data set documents characteristics (including the prices) of a
-sample of housings in Padova
+sample of housings in Padova.
 }
 \references{
 Bonifaci P, Copiello S
 (2015). "Real estate market and building energy performance: Data for a mass appraisal approach."
 \emph{Data in Brief}, \emph{5}, 1060-1065. ISSN 2352-3409.
 }
+\keyword{datasets}

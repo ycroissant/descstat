@@ -1,13 +1,14 @@
 #' French employment survey
 #'
-#' The employment survey gives information about characteristics of
-#' individuals (employed/unemployed, part/full time job, education,
-#' etc.)
+#' The employment survey gives information about characteristics of a
+#' sample of individuals (employed/unemployed, part/full time job,
+#' education, etc.).
 #' 
 #' @name employment
 #' @docType data
-#' @format a tibble containing:
-#'
+#' @keywords datasets
+#' 
+#' @format a tibble containing
 #' - activity : a factor with levels `occupied`, `unemployed` and
 #' `inactive`,
 #' - time : job time a factor with levels `part`, `full` and
@@ -20,7 +21,9 @@
 #' families) and `other`,
 #' - weights : weights to mimic the population.
 #' 
-#' @source Employment survey 2018, [INSEE](https://www.insee.fr/fr/statistiques/4191029)'s website
+#' @source Employment survey 2018,
+#'     [INSEE](https://www.insee.fr/fr/statistiques/4191029)'s
+#'     website.
 #'
 NULL
 
@@ -28,22 +31,25 @@ NULL
 #' DADS survey
 #'
 #' The DADS survey (Declaration Annuelle des Données Sociales)
-#' provides characteristics for wage earners (wages in class, number
-#' of working hours, etc.)
+#' provides characteristics of wage earners (wages in class, number
+#' of working hours, etc.).
 #' 
 #' @name wages
 #' @docType data
-#' @format a tibble containing:
+#' @keywords datasets
 #' 
+#' @format a tibble containing
 #' - sector : activity sector, `industry`, `building`, `business`,
 #' `services` and `administration`,
-#' - age :  the age in years
-#' - hours : annual number of hours worked
+#' - age :  the age in years,
+#' - hours : annual number of hours worked,
 #' - sex : sex of the wage earner, `male` or `female`,
 #' - wage : class of yearly wages, in thousands of euros,
-#' - size : class of working force size of the firm
+#' - size : class of working force size of the firm.
 #'
-#' @source DADS survey 2015, [INSEE](https://www.insee.fr/fr/statistiques/3536754)'s website
+#' @source DADS survey 2015,
+#'     [INSEE](https://www.insee.fr/fr/statistiques/3536754)'s
+#'     website.
 #'
 NULL
 
@@ -51,10 +57,12 @@ NULL
 #'
 #'
 #' This data set documents characteristics (including the prices) of a
-#' sample of housings in Padova
+#' sample of housings in Padova.
 #' 
 #' @name padova
 #' @docType data
+#' @keywords datasets
+#' 
 #' @format a tibble containing
 #' - zone : one of the 12 zones of Padova,
 #' - condition : `new` for new housings, `ordinary` or `good` for old ones,
@@ -78,19 +86,21 @@ NULL
 
 #' Extract of the French census
 #'
-#' this extract gives information about a sample of French households
+#' This extract of the French census gives information about a sample
+#' of French households.
 #' 
 #' @name rgp
 #' @docType data
+#' @keywords datasets
+#' 
 #' @format a tibble containing : 
 #' - cars : number of cars,
 #' - rooms : number of rooms of the housing,
 #' - children : number of children,
 #' - type : type of household ; `couple` or `monop` (for mono-parental families),
-#' - ER : sex if the Rth child (from 1 to 11).
 #' 
-#' @source
-#' [INSEE](https://www.insee.fr/fr/statistiques/4507685?sommaire=4508161)'s website
+#' @source [INSEE](https://www.insee.fr/fr/statistiques/4507685?sommaire=4508161)'s
+#'     website.
 #'
 NULL
 
@@ -98,18 +108,20 @@ NULL
 
 #' Income of French households
 #'
-#' bins of income classes, number of households and mass of income.
+#' Bins of income classes, number of households and mass of income.
 #' 
 #' @name income
 #' @docType data
-#' @format a tibble containing : 
-#' - bin: bin of income
-#' - number: number of households in the bin
-#' - income: mass of income in the bin
+#' @keywords datasets
 #' 
-#' @source
-#' Impot sur le revenu par commune (IRCOM) 
-#' [DGI](https://www.impots.gouv.fr/portail/statistiques)'s website
+#' @format a tibble containing : 
+#' - bin: bin of income,
+#' - number: number of households in the bin,
+#' - income: mass of income in the bin.
+#' 
+#' @source Impot sur le revenu par commune (IRCOM)
+#'     [DGI](https://www.impots.gouv.fr/portail/statistiques)'s
+#'     website.
 #'
 NULL
 

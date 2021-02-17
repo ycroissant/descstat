@@ -6,9 +6,11 @@
 \alias{is_bin}
 \alias{as_numeric}
 \alias{cut.bin}
+\alias{cut.character}
+\alias{cut.factor}
 \alias{extract.character}
 \alias{extract.factor}
-\title{bin series}
+\title{Bin series}
 \usage{
 as_bin(x)
 
@@ -17,6 +19,10 @@ is_bin(x)
 as_numeric(x, pos = 0, xfirst = NULL, xlast = NULL, wlast = NULL)
 
 \method{cut}{bin}(x, breaks = NULL, ...)
+
+\method{cut}{character}(x, breaks = NULL, ...)
+
+\method{cut}{factor}(x, breaks = NULL, ...)
 
 \method{extract}{character}(data, ..., .name_repair = "check_unique")
 
@@ -33,38 +39,39 @@ the upper bond, 0.5 for the center of the class (or any other
 value between 0 and 1), which indicates to \code{as_numeric} how the
 bins should be coerced to numerical values,}
 
-\item{xfirst}{the center of the first class, if one wants to
-specify something different from the average of the lower and
-the upper bonds,}
-
-\item{xlast}{the center of the last class, if one wants to specify
-something different from the average of the lower and the upper
-bonds,}
+\item{xfirst, xlast}{the center of the first (last) class, if one
+wants to specify something different from the average of the
+lower and the upper bonds,}
 
 \item{wlast}{in the case where the upper bond is infinite and
 \code{xlast} is not provided, the width of the last class is set to
-one of the before last. If \code{wlast} is provided, it is set to
-the width of the before last times \code{wlast},}
+the one of the before last class. If \code{wlast} is provided, it is
+set to the width of the before last class times \code{wlast},}
 
 \item{breaks}{a numerical vector of breaks which should be a subset
 of the initial set of breaks. If only one break is provided,
 all the bins with greater values are merged,}
 
-\item{...}{see \code{\link[tidyr:extract]{tidyr::extract()}},}
+\item{...}{see \code{\link[base:cut]{base::cut()}} for the \code{cut} method and
+\code{\link[tidyr:extract]{tidyr::extract()}} for the \code{extract} method,}
 
 \item{data}{a character or a factor containing bins,}
 
-\item{.name_repair}{see \code{\link[tidyr:extract]{tidyr::extract()}},}
+\item{.name_repair}{see \code{\link[tidyr:extract]{tidyr::extract()}}.}
 }
 \value{
-\code{as_bin} returns a \code{bin} object, \code{extract} method a tibble,
-\code{as_numeric} a numerical series and the \code{cut} method a \code{bin}
-object with fewer levels.
+\code{as_bin} returns a \code{bin} object, \code{is_bin} a logical, the
+\code{extract} method a tibble, \code{as_numeric} a numeric and the \code{cut}
+method a \code{bin} object with fewer levels.
 }
 \description{
 A new class called \code{bin} is provided, along with different
-functions which enable to deal easily with bins, ie coercing to
-numerical values, merging bins, etc.
+functions which enable to deal easily with bins, ie creating \code{bin}
+objects (\code{as_bin}) coercing bins to numerical values
+(\code{as_numeric}), merging bins (\code{cut}) and checking than an object is
+a bin (\code{is_bin}).
+}
+\details{
 \itemize{
 \item \code{extract} methods for characters and factors are provided which
 split the character strings in a four tibble columns: the open
@@ -78,9 +85,36 @@ returns a factor containing bins according to a \code{break} vector; for
 the bin's method, the break should be a subset of the original
 set of breaks and a bin with fewer levels results,
 \item \code{as_numeric} converts a bin to a value of the underlying variable
-defined by its position in the bin.
+defined by its relative position (from 0 lower bound to 1 upper
+bound in the bin),
+\item \code{is_bin} check if the argument is a bin.
 }
+}
+\examples{
+# create a factor containing bins using cut on a numeric
+z <- c(1, 5, 10, 12, 4, 9, 8)
+bin1 <- cut(z, breaks = c(1, 8, 12, Inf), right = FALSE)
+# extract the elements of the levels in a tibble
+extract(bin1)
+# coerce to a bin object
+bin2 <- as_bin(bin1)
+# coerce to a numeric using the center of the bins
+as_numeric(bin2, pos = 0.5)
+# special values for the center of the first and of the last bin
+as_numeric(bin2, pos = 0.5, xfirst = 5, xlast = 16)
+# same, but indicating that the width of the last class should be
+# twice the one of the before last
+as_numeric(bin2, pos = 0.5, xfirst = 5, wlast = 2)
+# merge in order to get only two bins
+cut(bin2, breaks = c(1, 12))
+# if length of breaks is 1, this is the value for which all the bins
+# containing greater values are merged
+cut(bin2, breaks = 8)
+# check that bin1 and bin2 are objects of class bin
+is_bin(bin1)
+is_bin(bin2)
 }
 \author{
 Yves Croissant
 }
+\keyword{classes}

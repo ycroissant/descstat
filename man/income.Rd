@@ -7,15 +7,17 @@
 \format{
 a tibble containing :
 \itemize{
-\item bin: bin of income
-\item number: number of households in the bin
-\item income: mass of income in the bin
+\item bin: bin of income,
+\item number: number of households in the bin,
+\item income: mass of income in the bin.
 }
 }
 \source{
 Impot sur le revenu par commune (IRCOM)
-\href{https://www.impots.gouv.fr/portail/statistiques}{DGI}'s website
+\href{https://www.impots.gouv.fr/portail/statistiques}{DGI}'s
+website.
 }
 \description{
-bins of income classes, number of households and mass of income.
+Bins of income classes, number of households and mass of income.
 }
+\keyword{datasets}

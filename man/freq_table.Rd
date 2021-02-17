@@ -7,7 +7,7 @@
 freq_table(
   data,
   x,
-  cols = "n",
+  f = "n",
   vals = NULL,
   weights = NULL,
   total = FALSE,
@@ -23,11 +23,11 @@ freq_table(
 )
 }
 \arguments{
-\item{data}{a tibble}
+\item{data}{a tibble,}
 
 \item{x}{a categorical or numerical series,}
 
-\item{cols}{a string containing \code{n} for counts, \code{f} for relative
+\item{f}{a string containing \code{n} for counts, \code{f} for relative
 frequencies, \code{p} for percentages and \code{m} for mass frequencies.
 Cumulative series are obtained using the same letters in upper
 caps,}
@@ -52,11 +52,7 @@ should be merged in the same modality,}
 \item{right}{a logical indicating whether classes should be closed
 (\code{right = TRUE}) or open (\code{right = FALSE}) on the right,}
 
-\item{xfirst}{see \code{\link[=as_numeric]{as_numeric()}},}
-
-\item{xlast}{see \code{\link[=as_numeric]{as_numeric()}},}
-
-\item{wlast}{see \code{\link[=as_numeric]{as_numeric()}},}
+\item{xfirst, xlast, wlast}{see \code{\link[=as_numeric]{as_numeric()}},}
 
 \item{freq}{a series that contains the frequencies (only relevant
 if \code{data} is already a frequency table),}
@@ -66,28 +62,52 @@ relevant if \code{data} is already a frequency table),}
 
 \item{center}{a series that contains the center of the class of the
 variable (only relevant if \code{data} is already a frequency
-table),}
+table).}
 }
 \value{
 a tibble containing the specified values of \code{vals} and
-\code{cols}.
+\code{f}.
 }
 \description{
-Compute the frequency table of a categorical or a numerical series
+Compute the frequency table of a categorical or a numerical series.
 }
 \examples{
 # in table padova, price is a numeric variable, a vector of breaks should be provided
 library("dplyr")
-padova \%>\% freq_table(price, breaks = c(50, 100, 150, 200, 250, 300, 350, 400),
+padova \%>\% freq_table(price,
+                      breaks = c(50, 100, 150, 200, 250, 300, 350, 400),
                       right = TRUE)
-padova \%>\% freq_table(price, breaks = c(50, 100, 150, 200, 250, 300, 350, 400),
-                      right = TRUE, cols = "fd", vals = "xa")
-# in table wages, wage  is a factor that represents the classes
+# return relative frequencies and densities, and the center value
+# of the series and the width of the bin
+padova \%>\% freq_table(price,
+                      breaks = c(50, 100, 150, 200, 250, 300, 350, 400),
+                      right = TRUE, f = "fd", vals = "xa")
+# in table wages, wage is a factor that represents the classes
 wages \%>\% freq_table(wage, "d")
 # a breaks argument is provided to reduce the number of classes
 wages \%>\% freq_table(wage, breaks = c(10, 20, 30, 40, 50))
-
+# a total argument add a total to the frequency table
+wages \%>\% freq_table(wage, breaks = c(10, 20, 30, 40, 50), total = TRUE)
+# ìncome is already a frequency table, the freq argument
+# is mandatory
+income \%>\% freq_table(inc_class, freq = number)
+# the mass argument can be indicated if on column contains the
+# mass of the series in each bin. In this case, the center of the
+# class are exactly the mean of the series in each bin
+income \%>\% freq_table(inc_class, freq = number, mass = tot_inc)
+# rgp contains a children series which indicates the number of
+# children of the households
+rgp \%>\% freq_table(children)
+# a max argument can be indicated to merge the unusual high
+# values of number of childre
+rgp \%>\% freq_table(children, max = 4)
+# employment is a non random survey, there is a weights series
+# that can be used to compute the frequency table according to the
+# sum of weights and not to counts
+employment \%>\% freq_table(education)
+employment \%>\% freq_table(education, weights = weights)
 }
 \author{
 Yves Croissant
 }
+\keyword{manip}

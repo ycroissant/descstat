@@ -1,21 +1,24 @@
-#' print methods for bin, freq_table and cont_table objects
+#' Print methods for bin, freq_table and cont_table objects
 #'
-#' `bin` objects are factors that contain bins. `freq_table` and
-#' `cont_table` are tibbles with specific format and print methods for
-#' pretty printing. A `pre_print` generic is provided with specific
-#' methods to put in form `freq_table` and `cont_table` objects.
+#' `freq_table` and `cont_table` are tibbles with specific format and
+#' print methods for pretty printing. A `pre_print` generic is
+#' provided with specific methods to put in form `freq_table` and
+#' `cont_table` objects.
 #'
 #' @name print_method
 #' @param x a `bin`, a `freq_table` or a `cont_table` object,
 #' @param n,width,n_extra see [tibble::formatting] and
-#'     [tibble::formatting],
+#'     [tibble::formatting].
 #' @param row_name a logical that indicates whether the first column
 #'     in the two-ways contingency table, that contains the levels of
 #'     the first series, should be named,
 #' @param total_name the name of the line (and of the column for
-#'     cont_table) that contains the total (default is `"Total"`),
-#' @param ... further arguments.
+#'     `cont_table`) that contains the total (default is `"Total"`),
+#' @param ... further arguments,
+#' @return a tibble, for the `cont_table` it is a tibble in wide
+#'     format as the `cont_table` object is in long format.
 #' @rdname print_methods
+#' @keywords print
 #' @export
 pre_print <- function(x, ...)
     UseMethod("pre_print")

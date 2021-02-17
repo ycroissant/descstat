@@ -6,6 +6,8 @@ output:
   html_document:
     toc: true
     toc_float: true
+  pdf_document:
+    number_sections: true
 vignette: >
   %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{desctat: an R package for descriptive statistics}
@@ -41,8 +43,8 @@ certain range. `descstat` is intended to provide user-friendly tools
 to perform these kind of operations. More specifically, `descstat`
 provides\:
 
-- a `bin` class which make computation on series that contain bins
-  easy
+- a `bin` class which makes computations on series that contain bins
+  easy,
 - a `freq_table` function to construct a frequency tables, and some
   methods to print, plot and compute some descriptive statistics,
 - a `cont_table` to compute contingency tables from two series.
@@ -90,9 +92,9 @@ strict format, like `[10,20)`, `(20,30]`, `[50,Inf)`, ie\ :
   respectively a bin open or closed on the right.
   
 This format is returned by the `base::cut` function which default
-method is relevant for numeric series and has a `break` argument (a
+method is relevant for numeric series and has a `breaks` argument (a
 numeric containing the breaks) and a `right` argument (if `TRUE` the
-bin is closed on the right). 
+bin is closed on the right).
 
 ```{r }
 z <- c(1, 5, 10, 12, 4, 9, 8)
@@ -126,9 +128,9 @@ don't appear in the correct order while sorted (ie `[12,Inf)` before `[8,12)`).
 
 ## The `bin` class
 
-To create `bin` objects, an `extract` method is provided for character
-and factors which create a tibble containing the different elements of
-the unique bins\:
+To create `bin` objects, an `extract` method is provided for
+characters and factors which create a tibble containing the different
+elements of the unique bins\:
 
 ```{r }
 bin3chr  %>% extract
@@ -163,9 +165,9 @@ bin3 %>% as_numeric
 but a `pos` argument can be used to return any value in the range of
 the bin, by defining the relative position, ie\:
 
-- `pos = 0` (the default) returns the lower bound,
-- `pos = 1` returns the upper bound,
-- `pos = 0.5` returns the center of the bin.
+- `pos = 0` (the default) for the lower bound,
+- `pos = 1` for the upper bound,
+- `pos = 0.5` for the center of the bin.
 
 
 ```{r }
@@ -176,13 +178,13 @@ While computing some statistics on bins, it is custumory to consider
 that, for all the individuals belonging to a specific bin, the value
 is just the center (ie all the individual values are equal to 10 for
 individuals belonging to the `[8,12)` bin), or the values are
-uniformaly distributed in the bin. This is the value returned with
-`pos = 0.5`, but there is a specific problem for the last bin if, as
+uniformaly distributed in the bin. This value is returned by
+`as_numeric` with `pos = 0.5`, but there is a specific problem for the last bin if, as
 it is the case here, the last bin is open to infinity on the
 right. In this case, the default behaviour of `as_numeric` is to set
 the width of the last bin to the width of the just before last one. As
 the width ot the `[8,12)` bin is 4, the width of the last one is also
-set to 4, which mean un upper bound of 16 and a center value
+set to 4, which mean an upper bound of 16 and a center value
 of 14. This behaviour can be changed either by setting the `wlast`
 argument to a different value, which is interpreted as a multiple of
 the width of the just before last bin. For example, `wlast = 4` means that
@@ -200,7 +202,7 @@ last bin using the `xlast` argument\:
 bin3 %>% as_numeric(pos = 0.5, xlast = 20)
 ```
 
-Finally, a specific center of the first bin can also be set using
+Finally, a specific center for the first bin can also be set using
 the `xfirst` argument\:
 
 ```{r }
@@ -221,16 +223,17 @@ rgp %>% count(children)
 
 ## Computing a frequency table
 
-The `descstat::freq_table` function performs the same task:
+The `descstat::freq_table` function performs the same task and returns
+by default exactly the same tibble as the one returned by `dplyr::count`:
 
-```{r }
+```{r results = 'hide'}
 rgp %>% freq_table(children)
 ```
 
 but it has several further arguments which can improve the result:
 
-- `cols` is a character containing one or several of the following
-  letters:
+- `f` is a character containing one or several letters and indicates
+  what kind of frequencies should be computed\:
   
     - `n` for the count or absolute frequencies (the default),
     - `f` for the (relative) frequencies,
@@ -245,7 +248,7 @@ but it has several further arguments which can improve the result:
 The following command use all the possible letters.
 
 ```{r }
-rgp %>% freq_table(children, cols = "nfpNFP")
+rgp %>% freq_table(children, "nfpNFP")
 ```
 
 As there are few occurrences of families with more than 3 children, we
@@ -293,7 +296,7 @@ The most natural way to plot a frequency table with `ggplot` is to use
 `geom_col` (or equivalently `geom_bar` with `stat = 'identity'`).
 
 ```{r }
-cld <- rgp %>% freq_table(children, cols = "nf", max = 3)
+cld <- rgp %>% freq_table(children, f = "nf", max = 3)
 cld %>% pre_print %>% ggplot(aes(children, f)) +
     geom_col(fill = "white", color = "black")
 ```
@@ -303,7 +306,7 @@ value in `>=3`.
 
 To get more enhanced graphics, a `pre_plot` method is provided, with a
 `plot` argument equal to `stacked` or `cumulative`. With `plot =
-"stacked"`,
+"stacked"`\:
 
 ```{r }
 cld %>% pre_print %>% pre_plot("f", plot = "stacked")
@@ -378,22 +381,22 @@ Applying `descstat::freq_table` for the `size` series, we get\:
 ```{r }
 wages %>% freq_table(size) %>% print(n = Inf)
 ```
-A  `break` argument is provided, which is a
+A  `breaks` argument is provided, which is a
 numerical vector that can be used to reduce the number of bins:
 
 ```{r }
 wages %>% freq_table(size, breaks = c(20, 250))
 ```
 
-The `break` argument should only contain values that are bounds of the
-initial set of bins. If the `break` argument is of length 1, all the
+The `breaks` argument should only contain values that are bounds of the
+initial set of bins. If the `breaks` argument is of length 1, all the
 bins containing values greater than the one specified are merged\:
 
 ```{r }
 wages %>% freq_table(size, breaks = 50)
 ```
 
-Internally, the `break` argument is passed to the `cut` methods for
+Internally, the `breaks` argument is passed to the `cut` methods for
 `bin` objects.
 
 A frequency table with bins can also be created from a continuous
@@ -405,24 +408,25 @@ padova %>% freq_table(price, breaks = c(250, 500, 750))
 padova %>% freq_table(price, breaks = c(30, 250, 500, 750, 1000))
 ```
 
-Note that in  case, the first (last) values of `breaks`
-can be either:
+Note that in this case, the first (last) values of `breaks` can be
+either:
 
 - outside the range of the series; in this case the lower bound of the
   first bin and the upper bound of the last bin are these values,
 - inside the range of the series; in this case the lower bound of the
   first bin is `0` and the upper bound of the last bin is `Inf`. 
 
-The `cols` argument may contain further letters than for the discrete
+The `f` argument may contain further letters than for the discrete
 series case\:
 
-- `d` for density, which is the frequency divided by the bin width, 
+- `d` for density, which is the relative frequency divided by the
+  bin's width,
 - `m` for the mass frequencies (the mass is the product of the
  absolute frequency and the value of the variable),
--  and `M` which is the cumulated mass frequencies.
+-  and `M` for cumulated mass frequencies.
 
 ```{r }
-wages %>% freq_table(size, cols = "dmM", breaks = c(20, 100, 250))
+wages %>% freq_table(size, "dmM", breaks = c(20, 100, 250))
 ```
 
 Other values of the variable can be included in the table using the
@@ -431,10 +435,10 @@ letters:
 
 - `l` for the lower bound of the bin,
 - `u` for the upper bound of the bin,
-- `a` for the width of the bin.
+- `a` for the width of the bins.
 
 ```{r }
-wages %>% freq_table(size, vals = "xlua", cols = "p", breaks = c(20, 100, 250), wlast = 2)
+wages %>% freq_table(size, "p", vals = "xlua", breaks = c(20, 100, 250), wlast = 2)
 ```
 
 ## Ploting bins tables
@@ -470,7 +474,7 @@ ftwage %>% pre_plot(plot = "freqpoly") %>%
     ggplot(aes(x, y)) + geom_line()
 ```
 Another popular plot for continuous numerical series is the Lorenz curve, which
-indicates the relation between the cummulative distributions of the
+indicates the relation between the cumulative distributions of the
 frequencies and the masses of the series. The data necessary to draw
 this curve are obtained using `plot = "lorenz"`. Not that in this
 case, the table should contain `F` and `M`.
@@ -484,7 +488,7 @@ lzc
 Each line in the resulting tibble indicate the coordinates (`F` for
 `x` and `M` for `y`) of the points that are necessary to plot the
 polygons under the Lorenz curve. `pts` is a logical which indicates
-which lines of the tibble correspond to points that are part of the
+on which lines of the tibble there are points that are part of the
 Lorenz curve\:
 
 ```{r }
@@ -499,9 +503,9 @@ The basic plot is obtained with a call to `geom_polygon` and
 extreme cases of a Lorenz curve\:
 
 - the blue curve for a completely equal distribution,
-- the read curve for a completely inequal distribution.
+- the red curve for a completely unequal distribution.
 
-# Dealing with frequency tables
+## Dealing with frequency tables
 
 `freq_table` is not only designed for data sets containing individual
 observations but also for frequency tables, like the `income` data
@@ -511,7 +515,7 @@ set\:
 income
 ```
 
-which present the distribution of income in France with 25 bins;
+which presents the distribution of income in France with 25 bins;
 `inc_class` contains range of yearly income (in thousands of euros)
 `number` is the number of households (in millions) and `tot_inc` is
 the mass of income in the bin (in thousands of million). To use
@@ -529,8 +533,8 @@ the `mass` argument\:
 ```{r }
 income %>% freq_table(inc_class, freq = number, mass = tot_inc)
 ```
-the center of the class are then calculated by dividing the mass by
-the frequency, which result, by definition, to the exact mean value of
+the center of the bins are then calculated by dividing the mass by
+the frequency, which result, by definition, to the exact mean value for
 every bin.
 
 # Univariate descriptive statistics
@@ -568,9 +572,9 @@ z %>% median
 z %>% modval
 ```
 
-`median` returns a value computed using the Thales theorem. `modval`
-returns the mode, which is a one line tibble containing the bin, the
-center of the bin and the modal value.
+`median` returns a value computed using a linear
+interpolation. `modval` returns the mode, which is a one line tibble
+containing the bin, the center of the bin and the modal value.
 
 For the dispersion statistics:
 
@@ -611,9 +615,9 @@ z %>% skewness
 z %>% kurtosis
 ```
 
-All these functions also work for counts. Of course, for categorial
-variables, all these functions are irrelevant except the one which
-compute the mode\:
+All these functions also work for counts. Of course, for categorical
+series, all these functions are irrelevant except the one which
+computes the mode\:
 
 
 ```{r }
@@ -621,20 +625,17 @@ wages %>% freq_table(sector) %>% modval
 ```
 
 
-
 # Contingency tables
 
 
 With `dplyr`, a contingency table can be computed using `count` with
-two categorical variables. 
-
-Let's first reduce the number of classes of `size` and `wage` in the
-`wages` table.
+two categorical variables.  Let's first reduce the number of classes
+of `size` and `wage` in the `wages` table.
 
 ```{r }
 wages2 <- wages %>%
-    mutate(size = cut(as_bin(size), c(20, 50, 100)),
-           wage = cut(as_bin(wage), c(10, 30, 50)))
+    mutate(size = cut(size, c(20, 50, 100)),
+           wage = cut(wage, c(10, 30, 50)))
 ```
 
 ```{r }
@@ -670,7 +671,9 @@ wages2 %>% cont_table(wage, size) %>%
 ```
 
 The `total` argument can be set to `TRUE` to get a row and a column of
-totals for the two series.
+totals for the two series and, to save place, the `row_name` can be
+set to `FALSE` so that the first column, which contains the modalities
+of the first series is unnamed.
 
 
 ```{r }
@@ -719,7 +722,7 @@ one.
   
 The `joint`, `marginal` and `conditional` functions return these three
 distributions. The last two require an argument `y` which is one of the
-two variables of the `freq_table` object.
+two series of the `cont_table` object.
 
 ```{r }
 wht <- wages2 %>% cont_table(size, wage)
@@ -728,11 +731,14 @@ wht %>% marginal(size)
 wht %>% conditional(size)
 ```
 
+Note that `marginal`, as it returns an univariate distribution, is
+coerced to a `freq_table` object.
+
 ## Computing descriptive statistics
 
 Descriptive statistics can be computed using any of the three
 distributions. Using the joint distribution, we get a tibble
-containing two columns for the two variables
+containing two columns for the two series.
 
 ```{r }
 wht %>% joint %>% mean
@@ -745,7 +751,6 @@ distribution:
 
 ```{r }
 wht %>% marginal(size) %>% mean
-wht %>% marginal(size) %>% stdev
 ```
 or even more simply considering the univariate distribution computed
 by `freq_table`:
@@ -787,16 +792,17 @@ cm <- wht %>% conditional(wage) %>% mean# %>% rename(mean = wage)
 cv <- wht %>% conditional(wage) %>% variance# %>% rename(variance = wage)
 md <- wht %>% marginal(size)
 md %>% left_join(cm) %>% left_join(cv) %>%
-    summarise(om = mean(mean),
+    summarise(om = sum(f * mean),
               ev = sum(f * (mean - om) ^ 2),
               rv = sum(f * variance),
-              tv = ev + rv)                       
+              tv = ev + rv) ->  ra
+
 ```
 
-Or more simply using the `var_decomp` function:
+Or more simply using the `anova` method for `cont_table` objects:
 
 ```{r }
-wht_wage <- wht %>% var_decomp("wage")
+wht_wage <- wht %>% anova("wage")
 wht_wage
 ```
 which has a `summary` method which computes the different elements of

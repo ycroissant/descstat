@@ -1,10 +1,10 @@
 Package: descstat
 Version: 0.1-2
-Date: 2021-02-10
+Date: 2021-02-17
 Title: Tools for Descriptive Statistics
 Authors@R: person("Yves", "Croissant", role = c("aut", "cre"), email = "yves.croissant@univ-reunion.fr")
 Depends: R (>= 4.0.0)
-Imports: rlang, purrr, dplyr, tidyr, tibble, tidyselect, forcats, cli
+Imports: rlang, purrr, dplyr, tidyr, tibble, tidyselect, forcats, cli, magrittr
 Suggests: knitr, ggplot2, rmarkdown
 Description: A toolbox for descriptive statistics, based on the computation of frequency and contingency tables. Several statistical functions and plot methods are provided to describe univariate or bivariate distributions of factors, integer series and numerical series either provided as individual values or as bins.
 Encoding: UTF-8

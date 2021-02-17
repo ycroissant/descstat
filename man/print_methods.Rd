@@ -9,7 +9,7 @@
 \alias{format.cont_table}
 \alias{print.cont_table}
 \alias{print.bin}
-\title{print methods for bin, freq_table and cont_table objects}
+\title{Print methods for bin, freq_table and cont_table objects}
 \usage{
 pre_print(x, ...)
 
@@ -44,21 +44,26 @@ pre_print(x, ...)
 \arguments{
 \item{x}{a \code{bin}, a \code{freq_table} or a \code{cont_table} object,}
 
-\item{...}{further arguments.}
+\item{...}{further arguments,}
 
 \item{row_name}{a logical that indicates whether the first column
 in the two-ways contingency table, that contains the levels of
 the first series, should be named,}
 
 \item{total_name}{the name of the line (and of the column for
-cont_table) that contains the total (default is \code{"Total"}),}
+\code{cont_table}) that contains the total (default is \code{"Total"}),}
 
 \item{n, width, n_extra}{see \link[tibble:formatting]{tibble::formatting} and
-\link[tibble:formatting]{tibble::formatting},}
+\link[tibble:formatting]{tibble::formatting}.}
+}
+\value{
+a tibble, for the \code{cont_table} it is a tibble in wide
+format as the \code{cont_table} object is in long format.
 }
 \description{
-\code{bin} objects are factors that contain bins. \code{freq_table} and
-\code{cont_table} are tibbles with specific format and print methods for
-pretty printing. A \code{pre_print} generic is provided with specific
-methods to put in form \code{freq_table} and \code{cont_table} objects.
+\code{freq_table} and \code{cont_table} are tibbles with specific format and
+print methods for pretty printing. A \code{pre_print} generic is
+provided with specific methods to put in form \code{freq_table} and
+\code{cont_table} objects.
 }
+\keyword{print}

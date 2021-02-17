@@ -5,7 +5,7 @@
 \alias{employment}
 \title{French employment survey}
 \format{
-a tibble containing:
+a tibble containing
 \itemize{
 \item activity : a factor with levels \code{occupied}, \code{unemployed} and
 \code{inactive},
@@ -21,10 +21,13 @@ families) and \code{other},
 }
 }
 \source{
-Employment survey 2018, \href{https://www.insee.fr/fr/statistiques/4191029}{INSEE}'s website
+Employment survey 2018,
+\href{https://www.insee.fr/fr/statistiques/4191029}{INSEE}'s
+website.
 }
 \description{
-The employment survey gives information about characteristics of
-individuals (employed/unemployed, part/full time job, education,
-etc.)
+The employment survey gives information about characteristics of a
+sample of individuals (employed/unemployed, part/full time job,
+education, etc.).
 }
+\keyword{datasets}

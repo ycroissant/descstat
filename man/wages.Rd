@@ -5,22 +5,25 @@
 \alias{wages}
 \title{DADS survey}
 \format{
-a tibble containing:
+a tibble containing
 \itemize{
 \item sector : activity sector, \code{industry}, \code{building}, \code{business},
 \code{services} and \code{administration},
-\item age :  the age in years
-\item hours : annual number of hours worked
+\item age :  the age in years,
+\item hours : annual number of hours worked,
 \item sex : sex of the wage earner, \code{male} or \code{female},
 \item wage : class of yearly wages, in thousands of euros,
-\item size : class of working force size of the firm
+\item size : class of working force size of the firm.
 }
 }
 \source{
-DADS survey 2015, \href{https://www.insee.fr/fr/statistiques/3536754}{INSEE}'s website
+DADS survey 2015,
+\href{https://www.insee.fr/fr/statistiques/3536754}{INSEE}'s
+website.
 }
 \description{
 The DADS survey (Declaration Annuelle des Données Sociales)
-provides characteristics for wage earners (wages in class, number
-of working hours, etc.)
+provides characteristics of wage earners (wages in class, number
+of working hours, etc.).
 }
+\keyword{datasets}

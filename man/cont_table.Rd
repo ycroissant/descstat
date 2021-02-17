@@ -5,15 +5,12 @@
 \alias{joint}
 \alias{conditional}
 \alias{marginal}
-\alias{var_decomp}
-\alias{summary.var_decomp}
-\alias{regline}
 \title{Contingency table}
 \usage{
 cont_table(
   data,
-  y1,
-  y2,
+  x1,
+  x2,
   weights = NULL,
   freq = NULL,
   total = FALSE,
@@ -25,22 +22,16 @@ cont_table(
   wlast2 = NULL
 )
 
-joint(x)
+joint(data)
 
-conditional(x, y = NULL)
+conditional(data, x = NULL)
 
-marginal(x, y = NULL, cols = "f", vals = NULL)
-
-var_decomp(x, y)
-
-\method{summary}{var_decomp}(object, ...)
-
-regline(formula, data)
+marginal(data, x = NULL, f = "f", vals = NULL)
 }
 \arguments{
 \item{data}{a tibble,}
 
-\item{y1, y2}{the two series used the construct the contingency
+\item{x1, x2}{the two series used the construct the contingency
 table, the distinct values of the first and the second will
 respectively be the rows and the columns of the contingency
 table,}
@@ -48,32 +39,18 @@ table,}
 \item{weights}{a series containing the weights that should be used
 to mimic the population,}
 
-\item{freq}{the frequencies (in case where data is a contingency
-table),}
+\item{freq}{the frequencies (in the case where data is already
+contingency table),}
 
 \item{total}{if \code{TRUE}, a total is added to the table,}
 
-\item{xfirst1, xfirst2}{the center of the first class for the two
-series,}
+\item{xfirst1, xfirst2, xlast1, xlast2, wlast1, wlast2}{see \code{\link[=as_numeric]{as_numeric()}},}
 
-\item{xlast1, xlast2, }{the center of the last class for the two
-series,}
+\item{x}{the series on which the operation should be computed,}
 
-\item{wlast1, wlast2}{the width of the last class for the two
-series,}
-
-\item{x, object}{a tibble containing the contingency table}
-
-\item{y}{the series on which the operation should be computed}
-
-\item{cols}{see \code{\link[=freq_table]{freq_table()}},}
+\item{f}{see \code{\link[=freq_table]{freq_table()}},}
 
 \item{vals}{see \code{\link[=freq_table]{freq_table()}},}
-
-\item{...}{further arguments.}
-
-\item{formula}{a formula which describe the model to estimate with
-the \code{regline} function,}
 }
 \value{
 a tibble
@@ -84,23 +61,30 @@ the modalities of two series in a table for which every modality of
 the first series is a row and every modality of the second series
 is a column. The \code{joint}, \code{marginal} and \code{conditional} functions
 compute these three distributions from the contingency table (by
-indicating one series for the last two). \code{mean}, \code{variance},
-\code{stdev}, \code{covariance} and \code{correlation} methods are
-provided. \code{regline} computes the regression line and \code{var_decomp}
-the variance decomposition.
+indicating one series for the last two).
+}
+\details{
+\code{cont_table} actually returns a tibble in "long format", as the
+\code{dplyr::count} table does. As the returned object is of class
+\code{cont_table}, this is the \code{format} and \code{print} methods that turns
+the tibble in a wide format before printing.
+
+The \code{conditional} and \code{joint} functions return a \code{cont_table}
+object, as the \code{marginal} function returns a \code{freq_table} object.
 }
 \examples{
 library("dplyr")
+# get a contingency table containing education and sex
 cont_table(employment, education, sex)
+# instead of counts, sum the weights
 cont_table(employment, education, sex, weights = weights)
+# get the joint distribution and the conditional and marginal
+# distribution of sex
+cont_table(employment, education, sex) \%>\% joint
+cont_table(employment, education, sex) \%>\% marginal(sex)
 cont_table(employment, education, sex) \%>\% conditional(sex)
-cont_table(wages, wage, size)
-cont_table(wages, wage, size) \%>\% joint
-cont_table(wages, wage, size) \%>\% joint \%>\% mean
-cont_table(wages, wage, size) \%>\% marginal(size)
-cont_table(wages, wage, size) \%>\% conditional(size)
-
 }
 \author{
 Yves Croissant
 }
+\keyword{manip}

@@ -8,7 +8,7 @@ some packages of the tidyverse (especially **dplyr**, **tidyr** and
 especially the selection of series using their unquoted names and
 the use of the pipe operator and of tibbles.
 
-# The bin class:
+## The bin class:
 
 In a frequency (or contingency table), continuous numerical series
 are presented as bins. Moreover, for some surveys, the individual
@@ -24,14 +24,13 @@ whatever other value of the bin,
 - reducing the number of bins by merging some of them (for example
 `[0,10)`, `[10, 20)`, `[20,30)`, `[30,Inf)` to `[0,20)`, `[20,Inf)`
 
-
 these latter two tasks are performed using the new `bin` class
 provided by this package and the accompanying `as_numeric` function
 for the coercion to numeric and the `cut` method for bins
 merging. Especially, coercing bins to their center values is the
 basis of the computation of descripting statistics for bins.
 
-# Frequency and contingency tables:
+## Frequency and contingency tables:
 
 The `freq_table` and `cont_table` are based on the `dplyr::count`
 function but offer a much richer interface and performs easily
@@ -46,7 +45,7 @@ cummulative frequencies, etc.,
 conditional distributions,
 - printing easily the contingency table as a double entry table.
 
-# Plotting the distribution:
+## Plotting the distribution:
 
 A `pre_plot` function is provided to put the tibble in form in
 order to use classic plots for univariate or bivariate
@@ -54,7 +53,7 @@ distributions. This includes histogram, frequency plot, pie chart,
 cummulative plot and Lorenz curve. The final plot can then be
 obtained using some geoms of **ggplot2**.
 
-# Descriptive statistics:
+## Descriptive statistics:
 
 A full set of statistical functions (of central tendency,
 dispersion, shape, concentration and covariation) are provided and

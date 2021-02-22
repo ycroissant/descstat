@@ -61,7 +61,7 @@ pre_print.cont_table <- function(x, ..., row_name = TRUE, total_name = "Total"){
         }
         if ("NA" %in% names(x)) names(x)[names(x) == "NA"] <- total_name
         if (any(is.na(x[[1]])))
-            x[[1]] <- ifelse(is.na(x[[1]]), total_name, x[[1]])
+            x[[1]] <- ifelse(is.na(x[[1]]), total_name, as.character(x[[1]]))
     }
     x
 }

@@ -163,12 +163,12 @@ marginal <- function(data, x = NULL, f = "f", vals = NULL){
     }
     limits <- limits[[x_name]]
     data <- summarise(group_by(na.omit(data), !! as.symbol(x_name)),
-                   f = sum(!! as.symbol(f_name))) %>%
+                      f = sum(!! as.symbol(f_name))) %>%
         mutate(f = .data$f / sum(.data$f))
     data <- freq_table(data, !! as.symbol(x_name), f = f, vals = vals, freq = .data$f, 
                        xfirst = limits$xfirst,
                        xlast = limits$xlast,
-                       wlast = limits$wlast, total = has_total)
+                       wlast = limits$wlast)
     data
 }
 

@@ -108,7 +108,7 @@ regline <- function(formula, data){
     c_xy <- data %>% joint %>% covariance
     m_x <- data %>% marginal(x) %>% mean
     m_y <- data %>% marginal(y) %>% mean
-    v_x <- data %>% marginal(x) %>% mean
+    v_x <- data %>% marginal(x) %>% variance
     slope <- c_xy / v_x
     intercept <- m_y - slope * m_x
     c(intercept, slope)

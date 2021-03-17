@@ -1,6 +1,6 @@
 Package: descstat
 Version: 0.1-3
-Date: 2021-02-19
+Date: 2021-03-17
 Title: Tools for Descriptive Statistics
 Authors@R: person("Yves", "Croissant", role = c("aut", "cre"), email = "yves.croissant@univ-reunion.fr")
 Depends: R (>= 4.0.0)
